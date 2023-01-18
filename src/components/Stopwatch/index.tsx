@@ -37,6 +37,7 @@ const Stopwatch = ({ maximized, setMaximized }: ICommonProps) => {
 	const recordLap = () => {
 		if (!isActive) return
 		setLaps((c) => {
+			// First iteration
 			if (!c.length) {
 				return [{ diff: elapsed, ts: elapsed }]
 			}
@@ -46,8 +47,9 @@ const Stopwatch = ({ maximized, setMaximized }: ICommonProps) => {
 			const fastest = c.find((l) => l.fastest)
 			const slowest = c.find((l) => l.slowest)
 
+			// Second iteration
 			if (!(fastest && slowest)) {
-				const isFaster = previous.diff < diff
+				const isFaster = diff < previous.diff
 				return [
 					{ diff, ts: elapsed, [isFaster ? 'fastest' : 'slowest']: true },
 					{ ...previous, [isFaster ? 'slowest' : 'fastest']: true },
@@ -57,6 +59,7 @@ const Stopwatch = ({ maximized, setMaximized }: ICommonProps) => {
 			const isFastest = diff <= fastest.diff
 			const isSlowest = diff >= slowest.diff
 
+			// N-th iteration
 			return [
 				{ ts: elapsed, diff, ...(isFastest ? { fastest: true } : isSlowest ? { slowest: true } : undefined) },
 				...c.map((l) => {
@@ -135,7 +138,8 @@ const Stopwatch = ({ maximized, setMaximized }: ICommonProps) => {
 											<span>
 												{laps.length - idx}
 												<span style={{ marginLeft: 24 }}>
-													{fastest && 'Fastest'} {slowest && 'Slowest'}
+													{fastest && 'Fastest'}
+													{slowest && 'Slowest'}
 												</span>
 											</span>
 											<span>
