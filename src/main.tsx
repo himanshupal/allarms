@@ -38,7 +38,7 @@ const App = function () {
 	window.document.title = Component.name
 
 	return (
-		<Layout hash={hash} maximized={maximized} setHash={setHash}>
+		<Layout name={Component.name} hash={hash} maximized={maximized} setHash={setHash}>
 			<Component maximized={maximized} setMaximized={setMaximized} />
 		</Layout>
 	)

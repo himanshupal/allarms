@@ -1,0 +1,115 @@
+.timer {
+	gap: 1rem;
+	display: flex;
+	flex-wrap: wrap;
+
+	&Card {
+		min-width: 400px;
+		border-radius: 1rem;
+		background: #2a2e39;
+		padding: 0.5rem;
+
+		flex-direction: column;
+		display: flex;
+		gap: 0.5rem;
+
+		transition: all 150ms ease;
+
+		&:hover {
+			box-shadow: 0 4px 0.5rem #1e1c1c;
+			transform: translateY(-4px);
+		}
+	}
+
+	&Ring {
+		grid-area: 1/1;
+		transform: rotate(-90deg);
+
+		& > circle {
+			shape-rendering: geometricPrecision;
+
+			&:first-of-type {
+				fill: #373a43;
+			}
+
+			&:nth-of-type(2) {
+				transition: stroke-dasharray 0.3s ease;
+				stroke-linecap: round;
+				fill: transparent;
+				stroke-width: 20;
+			}
+
+			&:last-of-type {
+				fill: #2a2e39;
+			}
+		}
+
+		&Container {
+			transition: all 150ms ease;
+			place-content: center;
+			border-radius: 100%;
+			display: grid;
+		}
+
+		&Active {
+			& > circle {
+				&:nth-of-type(2) {
+					stroke: #4ab4ec;
+				}
+			}
+		}
+	}
+
+	&Digits {
+		place-content: center;
+		font-size: 2rem;
+		grid-area: 1/1;
+		display: grid;
+		opacity: 75%;
+		z-index: 1;
+
+		&Active {
+			opacity: 100%;
+		}
+	}
+}
+
+.actions {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.5rem;
+
+	&Top {
+		&:first-of-type {
+			justify-content: space-between;
+		}
+	}
+
+	&Bottom {
+		gap: 0.75rem;
+
+		& > span {
+			display: grid;
+			width: 2.5rem;
+			height: 2.5rem;
+			cursor: pointer;
+			border-radius: 100px;
+			place-content: center;
+			transition: all 125ms ease;
+
+			&:hover {
+				opacity: 85%;
+			}
+
+			&:first-of-type {
+				background: #48b2ea;
+			}
+
+			&:last-of-type {
+				background: #373a43;
+				box-shadow: 0 0 4px #383c47;
+			}
+		}
+	}
+}

@@ -9,10 +9,11 @@ interface ILayoutProps {
 	children: JSXInternal.Element
 	setHash: StateUpdater<Hash>
 	maximized: boolean
+	name: string
 	hash: Hash
 }
 
-const Layout = ({ children, hash, setHash, maximized }: ILayoutProps) => {
+const Layout = ({ children, name, hash, setHash, maximized }: ILayoutProps) => {
 	return (
 		<div className={s.container}>
 			{!maximized && (
@@ -41,7 +42,7 @@ const Layout = ({ children, hash, setHash, maximized }: ILayoutProps) => {
 				</aside>
 			)}
 
-			<section className={s.content}>{children}</section>
+			<section className={getClass(s.content, s[`content${name}`])}>{children}</section>
 		</div>
 	)
 }

@@ -14,11 +14,14 @@
 }
 
 .link {
-	padding: 0.5rem 0;
+	padding: 0.5rem;
 	position: relative;
 	text-decoration: none;
 
 	&Active {
+		border-radius: 4px;
+		background: #26272a;
+
 		&::before {
 			content: '';
 			position: absolute;
@@ -40,4 +43,11 @@
 	align-items: center;
 	justify-content: center;
 	min-height: calc(100vh - 2rem);
+
+	&Timer {
+		position: relative;
+		padding: 1rem 3.5rem;
+		align-items: flex-start;
+		justify-content: flex-start;
+	}
 }
