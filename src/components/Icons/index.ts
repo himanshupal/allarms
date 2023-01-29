@@ -1,6 +1,7 @@
 export { default as Minimize } from './Minimize'
 export { default as Maximize } from './Maximize'
 export { default as Chevron } from './Chevron'
+export { default as Delete } from './Delete'
 export { default as Cancel } from './Cancel'
 export { default as Pause } from './Pause'
 export { default as Save } from './Save'

@@ -1,5 +1,5 @@
 .modal {
-  background-color: #1e1c1caa;
+	background-color: #1e1c1caa;
 	backdrop-filter: blur(10px);
 	min-height: 100vh;
 	position: fixed;
@@ -14,6 +14,11 @@
 		margin-bottom: 0.5rem;
 		font-size: 1.5rem;
 		font-weight: 500;
+
+		width: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
 	}
 
 	&Actions {
@@ -54,7 +59,7 @@
 	&Content {
 		background-color: #26272a;
 		transform: translate(-50%, -50%);
-    box-shadow: 0 4px 0.5rem #1e1c1c;
+		box-shadow: 0 4px 0.5rem #1e1c1c;
 		border: 1px solid #1e1c1c;
 		border-radius: 0.75rem;
 		position: absolute;

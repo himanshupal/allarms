@@ -1,7 +1,44 @@
 .timer {
+	$parent: &;
+
 	gap: 1rem;
 	display: flex;
 	flex-wrap: wrap;
+
+	&Maximized {
+		width: 100%;
+		height: 100%;
+		align-items: center;
+		justify-content: center;
+
+		#{$parent}Card {
+			background: none;
+
+			&:hover {
+				background: none;
+				transform: unset;
+				box-shadow: unset;
+			}
+		}
+
+		#{$parent}Ring {
+			& > circle {
+				&:last-of-type {
+					fill: #26272a;
+				}
+
+				&:nth-of-type(2) {
+					transition: stroke-dasharray 125ms ease-out;
+					stroke-dasharray: 1256, 1256;
+					stroke-width: 40;
+				}
+			}
+		}
+
+		#{$parent}Digits {
+			font-size: 4.5rem;
+		}
+	}
 
 	&New {
 		transition: all 125ms ease;
@@ -23,7 +60,7 @@
 	&Card {
 		min-width: 400px;
 		border-radius: 1rem;
-		background: #2a2e39;
+		background: #2e323d;
 		padding: 0.5rem;
 
 		flex-direction: column;
@@ -35,6 +72,7 @@
 		&:hover {
 			box-shadow: 0 4px 0.5rem #1e1c1c;
 			transform: translateY(-4px);
+			background: #2a2e38;
 		}
 	}
 
@@ -90,6 +128,17 @@
 			opacity: 100%;
 		}
 	}
+
+	&Icon {
+		display: grid;
+		place-content: center;
+
+		&s {
+			gap: 1rem;
+			display: flex;
+			align-items: center;
+		}
+	}
 }
 
 .actions {
@@ -127,6 +176,16 @@
 			&:last-of-type {
 				background: #373a43;
 				box-shadow: 0 0 4px #383c47;
+			}
+		}
+
+		&Maximized {
+			gap: 1.5rem;
+			padding: 1rem;
+
+			& > span {
+				width: 3.75rem;
+				height: 3.75rem;
 			}
 		}
 	}
