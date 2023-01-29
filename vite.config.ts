@@ -1,13 +1,13 @@
+import react from '@vitejs/plugin-react-swc'
 import { defineConfig } from 'vite'
-import preact from '@preact/preset-vite'
 import { resolve } from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [preact()],
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, 'src')
-    }
-  }
+	plugins: [react()],
+	resolve: {
+		alias: {
+			'@': resolve(__dirname, 'src'),
+		},
+	},
 })

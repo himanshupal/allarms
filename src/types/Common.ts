@@ -1,6 +1,6 @@
-import { StateUpdater } from 'preact/hooks'
+import type { Dispatch, SetStateAction } from 'react'
 
 export interface ICommonProps {
-	setMaximized: StateUpdater<boolean>
+	setMaximized: Dispatch<SetStateAction<boolean>>
 	maximized: boolean
 }

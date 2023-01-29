@@ -1,11 +1,11 @@
-import { useEffect, useState } from 'preact/hooks'
 import { Hash, THEME_STORAGE_KEY } from '@/config'
 import Stopwatch from '@/components/Stopwatch'
+import { createRoot } from 'react-dom/client'
+import { useEffect, useState } from 'react'
 import Layout from '@/components/Layout'
 import Timer from '@/components/Timer'
 import Alarm from '@/components/Alarm'
 import { Theme } from '@/types/Theme'
-import { render } from 'preact'
 
 import '@/styles/main.scss'
 
@@ -44,4 +44,5 @@ const App = function () {
 	)
 }
 
-render(<App />, document.getElementById('app')!)
+const rootEl = document.getElementById('app')!
+createRoot(rootEl).render(<App />)

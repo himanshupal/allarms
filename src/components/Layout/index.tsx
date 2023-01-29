@@ -1,19 +1,18 @@
-import type { JSXInternal } from 'preact/src/jsx'
-import { StateUpdater } from 'preact/hooks'
+import type { FC, Dispatch, SetStateAction } from 'react'
 import { getClass } from '@/utils'
 import { Hash } from '@/config'
 
 import s from './styles.module.scss'
 
 interface ILayoutProps {
-	children: JSXInternal.Element
-	setHash: StateUpdater<Hash>
+	children: JSX.Element
+	setHash: Dispatch<SetStateAction<Hash>>
 	maximized: boolean
 	name: string
 	hash: Hash
 }
 
-const Layout = ({ children, name, hash, setHash, maximized }: ILayoutProps) => {
+const Layout: FC<ILayoutProps> = ({ children, name, hash, setHash, maximized }) => {
 	return (
 		<div className={s.container}>
 			{!maximized && (

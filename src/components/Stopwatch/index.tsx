@@ -1,8 +1,7 @@
 import { Maximize, Minimize, Flag, Pause, Play, Undo } from '@/components/Icons'
+import { Fragment, useMemo, useState } from 'react'
 import type { ICommonProps } from '@/types/Common'
-import { useMemo, useState } from 'preact/hooks'
 import { getClass, getElapsed } from '@/utils'
-import { Fragment } from 'preact/jsx-runtime'
 
 import s from './styles.module.scss'
 

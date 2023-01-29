@@ -8,10 +8,10 @@ const Maximize = ({ width = 24, height = 24, fill = 'none', stroke = 'currentCol
 			height={height}
 			fill={fill}
 			stroke={stroke}
-			stroke-width='2'
+			strokeWidth='2'
 			viewBox='0 0 24 24'
-			stroke-linecap='round'
-			stroke-linejoin='round'
+			strokeLinecap='round'
+			strokeLinejoin='round'
 			className={className}
 		>
 			<polyline points='15 3 21 3 21 9' />

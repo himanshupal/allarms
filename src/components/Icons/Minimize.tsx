@@ -9,10 +9,10 @@ const Minimize = ({ width = 24, height = 24, fill = 'none', stroke = 'currentCol
 			viewBox='0 0 24 24'
 			fill={fill}
 			stroke={stroke}
-			stroke-width='2'
-			stroke-linecap='round'
-			stroke-linejoin='round'
-			class={className}
+			strokeWidth='2'
+			strokeLinecap='round'
+			strokeLinejoin='round'
+			className={className}
 		>
 			<polyline points='4 14 10 14 10 20' />
 			<polyline points='20 10 14 10 14 4' />

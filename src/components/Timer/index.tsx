@@ -1,6 +1,6 @@
 import { Maximize, Minimize, Pause, Play, Undo } from '@/components/Icons'
 import type { ICommonProps } from '@/types/Common'
-import { useMemo, useState } from 'preact/hooks'
+import { useMemo, useState } from 'react'
 import { getClass, getElapsed } from '@/utils'
 
 import s from './styles.module.scss'
