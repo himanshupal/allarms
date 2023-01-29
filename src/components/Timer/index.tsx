@@ -111,7 +111,7 @@ const Counter = ({ id, name, duration, maximized, setMaximized, setTimers, setMa
 					<svg
 						width={maximized ? 440 : 220}
 						height={maximized ? 440 : 220}
-						className={getClass(s.timerRing, isActive && s.timerRingActive)}
+						className={getClass(s.timerRing, (isActive || elapsed !== duration) && s.timerRingActive)}
 					>
 						<circle r={maximized ? 220 : 110} cx={maximized ? 220 : 110} cy={maximized ? 220 : 110} />
 						<circle
