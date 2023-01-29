@@ -1,6 +1,6 @@
 import { Maximize, Minimize, Pause, Play, Undo, Plus, Edit, Chevron } from '@/components/Icons'
 import { getClass, getElapsed, padZero } from '@/utils'
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import type { ICommonProps } from '@/types/Common'
 import useModal from '@/hooks/useModal'
 
@@ -21,8 +21,10 @@ interface ICounterProps extends ITimer {
 const MAX_HOURS = 99
 const MAX_MINUTES = 59
 const MAX_SECONDS = 59
+const CIRCLE_FRACTIONS = 628
 
 const Counter = ({ name, duration, maximized }: ICounterProps) => {
+	const fraction = useRef<number>(CIRCLE_FRACTIONS)
 	const [elapsed, setElapsed] = useState<number>(duration)
 	const [isActive, setActive] = useState<boolean>(false)
 	const [timer, setTimer] = useState<NodeJS.Timer>()
@@ -35,7 +37,10 @@ const Counter = ({ name, duration, maximized }: ICounterProps) => {
 			setActive(false)
 		} else {
 			const _timer = setInterval(() => {
-				setElapsed((e) => e - 1)
+				setElapsed((e) => {
+					fraction.current = (CIRCLE_FRACTIONS * (e / duration) * 100) / 100
+					return e - 1
+				})
 			}, 10)
 			setActive(true)
 			setTimer(_timer)
@@ -43,10 +48,17 @@ const Counter = ({ name, duration, maximized }: ICounterProps) => {
 	}
 
 	const reset = () => {
+		fraction.current = CIRCLE_FRACTIONS
 		clearInterval(timer)
 		setElapsed(duration)
 		setActive(false)
 	}
+
+	useEffect(() => {
+		if (timer && !elapsed) {
+			return () => clearInterval(timer)
+		}
+	}, [timer, elapsed])
 
 	return (
 		<div className={s.timerCard}>
@@ -61,7 +73,16 @@ const Counter = ({ name, duration, maximized }: ICounterProps) => {
 				</span>
 				<svg width='220' height='220' className={getClass(s.timerRing, isActive && s.timerRingActive)}>
 					<circle r='110' cx='110' cy='110' />
-					<circle r='100' cx='110' cy='110' style={{ strokeDasharray: '314 628' }} />
+					<circle
+						r='100'
+						cx='110'
+						cy='110'
+						style={
+							fraction.current !== CIRCLE_FRACTIONS
+								? { strokeDasharray: `${fraction.current} ${CIRCLE_FRACTIONS}` }
+								: undefined
+						}
+					/>
 					<circle r='90' cx='110' cy='110' />
 				</svg>
 			</div>
@@ -77,7 +98,7 @@ const Counter = ({ name, duration, maximized }: ICounterProps) => {
 }
 
 const Timer = ({ maximized }: ICommonProps) => {
-	const [timers, setTimers] = useState<Array<ITimer>>([])
+	const [timers, setTimers] = useState<Array<ITimer>>([{ name: 'Test', duration: 500 }])
 	const { toggleModal, Modal } = useModal()
 
 	return (

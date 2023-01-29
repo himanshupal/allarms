@@ -15,7 +15,7 @@ interface IModalProps {
 }
 
 const useModal = () => {
-	const [modalActive, setModalActive] = useState<boolean>(true)
+	const [modalActive, setModalActive] = useState<boolean>(false)
 
 	const toggleModal = () => setModalActive((a) => !a)
 
