@@ -1,6 +1,6 @@
 import type { IIconProps } from '@/types/Icon'
 
-const Minimize = ({ width = 24, height = 24, fill = 'none', stroke = 'currentColor', className }: IIconProps) => {
+const Edit = ({ width = 24, height = 24, fill = 'none', stroke = 'currentColor', className }: IIconProps) => {
 	return (
 		<svg
 			xmlns='http://www.w3.org/2000/svg'
@@ -14,12 +14,10 @@ const Minimize = ({ width = 24, height = 24, fill = 'none', stroke = 'currentCol
 			strokeLinejoin='round'
 			className={className}
 		>
-			<polyline points='4 14 10 14 10 20' />
-			<polyline points='20 10 14 10 14 4' />
-			<line x1='14' y1='10' x2='21' y2='3' />
-			<line x1='3' y1='21' x2='10' y2='14' />
+			<path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7' />
+			<path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z' />
 		</svg>
 	)
 }
 
-export default Minimize
+export default Edit

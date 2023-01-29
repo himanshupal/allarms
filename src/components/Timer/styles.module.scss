@@ -3,6 +3,23 @@
 	display: flex;
 	flex-wrap: wrap;
 
+	&New {
+		transition: all 150ms ease;
+		border: 1px solid #1e1c1c;
+		place-content: center;
+		border-radius: 4px;
+		position: absolute;
+		padding: 0.35rem;
+		display: grid;
+		bottom: 2rem;
+		right: 2rem;
+
+		&:hover {
+			box-shadow: 0 4px 0.5rem #1e1c1c;
+			transform: translateY(-2px);
+		}
+	}
+
 	&Card {
 		min-width: 400px;
 		border-radius: 1rem;

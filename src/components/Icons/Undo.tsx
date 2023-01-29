@@ -1,4 +1,4 @@
-import { IIconProps } from '@/types/Icon'
+import type { IIconProps } from '@/types/Icon'
 
 const Undo = ({ width = 24, height = 24, fill = '#000', className }: Omit<IIconProps, 'currentColor'>) => {
 	return (

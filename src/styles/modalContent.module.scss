@@ -1,0 +1,85 @@
+.timer {
+	$parent: &;
+
+	&Container {
+		gap: 0.35rem;
+		display: flex;
+		margin: 1.5rem 0;
+		flex-direction: column;
+
+		&Up,
+		&Down,
+		&Values {
+			display: flex;
+			justify-content: space-around;
+		}
+
+		&Values {
+			padding: 0.25rem;
+			align-items: center;
+			background: #1e1c1c;
+			border-radius: 0.25rem;
+			border-bottom: 2px solid #48b2ea;
+
+			> #{$parent}Digit {
+				font-weight: 500;
+				width: 1rem;
+			}
+		}
+	}
+
+	&Icon {
+		display: grid;
+		padding: 0.25rem;
+		place-content: center;
+		border-radius: 0.25rem;
+		transition: all 125ms ease-in-out;
+
+		&:hover {
+			background: #1e1c1c;
+		}
+	}
+
+	&Value {
+		flex: 1;
+		display: flex;
+		padding: 0.5rem;
+		align-items: center;
+		flex-direction: column;
+		border-radius: 0.25rem;
+		transition: all 125ms ease-in-out;
+
+		&Selected {
+			background-color: #242528;
+		}
+	}
+
+	&Digit {
+		width: 100%;
+		font-weight: 700;
+		font-size: 2.75rem;
+		text-align: center;
+	}
+
+	&Input {
+		flex: 1;
+		padding: 0.5rem;
+		color: white;
+		border: unset;
+		background: #1e1c1c;
+		border-radius: 0.25rem;
+		border-bottom: 2px solid #1e1c1c;
+
+		&:focus-visible {
+			outline: none;
+			border-bottom: 2px solid #48b2ea;
+		}
+
+		&Container {
+			gap: 0.75rem;
+			display: flex;
+			margin: 1.5rem 0;
+			align-items: center;
+		}
+	}
+}

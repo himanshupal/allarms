@@ -1,6 +1,6 @@
 import type { IIconProps } from '@/types/Icon'
 
-const Minimize = ({ width = 24, height = 24, fill = 'none', stroke = 'currentColor', className }: IIconProps) => {
+const Plus = ({ width = 24, height = 24, fill = '#000', stroke = 'currentColor', className }: IIconProps) => {
 	return (
 		<svg
 			xmlns='http://www.w3.org/2000/svg'
@@ -14,12 +14,10 @@ const Minimize = ({ width = 24, height = 24, fill = 'none', stroke = 'currentCol
 			strokeLinejoin='round'
 			className={className}
 		>
-			<polyline points='4 14 10 14 10 20' />
-			<polyline points='20 10 14 10 14 4' />
-			<line x1='14' y1='10' x2='21' y2='3' />
-			<line x1='3' y1='21' x2='10' y2='14' />
+			<line x1='12' y1='5' x2='12' y2='19' />
+			<line x1='5' y1='12' x2='19' y2='12' />
 		</svg>
 	)
 }
 
-export default Minimize
+export default Plus

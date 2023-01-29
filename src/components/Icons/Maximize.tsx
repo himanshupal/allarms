@@ -1,4 +1,4 @@
-import { IIconProps } from '@/types/Icon'
+import type { IIconProps } from '@/types/Icon'
 
 const Maximize = ({ width = 24, height = 24, fill = 'none', stroke = 'currentColor', className }: IIconProps) => {
 	return (
