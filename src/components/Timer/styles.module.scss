@@ -58,22 +58,7 @@
 	}
 
 	&Card {
-		min-width: 400px;
-		border-radius: 1rem;
-		background: #2e323d;
-		padding: 0.5rem;
-
-		flex-direction: column;
-		display: flex;
-		gap: 0.5rem;
-
-		transition: all 150ms ease;
-
-		&:hover {
-			box-shadow: 0 4px 0.5rem #1e1c1c;
-			transform: translateY(-4px);
-			background: #2a2e38;
-		}
+		@extend .card;
 	}
 
 	&Ring {
@@ -96,7 +81,11 @@
 			}
 
 			&:last-of-type {
-				fill: #2a2e39;
+				fill: $secondary-dark;
+
+				&:hover {
+					fill: $secondary-light;
+				}
 			}
 		}
 

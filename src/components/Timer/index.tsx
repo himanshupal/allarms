@@ -1,5 +1,6 @@
 import { Maximize, Minimize, Pause, Play, Undo, Plus, Edit, Chevron } from '@/components/Icons'
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import { MAX_HOURS, MAX_MINUTES, MAX_SECONDS } from '@/config'
 import { getClass, getElapsed, padZero } from '@/utils'
 import type { ICommonProps } from '@/types/Common'
 import type { IModalProps } from '@/hooks/useModal'
@@ -27,10 +28,6 @@ interface ITimerModalProps {
 	setTimers: React.Dispatch<React.SetStateAction<Array<ITimer>>>
 	defaultValues?: Record<SelectedValue, number> & { name: string }
 }
-
-const MAX_HOURS = 99
-const MAX_MINUTES = 59
-const MAX_SECONDS = 59
 
 const Counter = ({ id, name, duration, maximized, setMaximized, setTimers, setMaximizedCounter }: ICounterProps) => {
 	const CIRCLE_FRACTIONS = maximized ? 1256 : 628
@@ -145,7 +142,7 @@ const Counter = ({ id, name, duration, maximized, setMaximized, setTimers, setMa
 	)
 }
 
-const TimerModal = ({ id, Modal, setTimers, defaultValues }: ITimerModalProps) => (
+const TimerModal: React.FC<ITimerModalProps> = ({ id, Modal, setTimers, defaultValues }) => (
 	<Modal title={defaultValues ? 'Edit Timer' : 'Add New Timer'} showDeleteIcon={!!defaultValues}>
 		{({ onSave, onDelete, toggleModal }) => {
 			const [name, setName] = useState<string>(defaultValues?.name || '')
@@ -179,10 +176,10 @@ const TimerModal = ({ id, Modal, setTimers, defaultValues }: ITimerModalProps) =
 
 			return (
 				<Fragment>
-					<div className={m.timerContainer}>
-						<div className={m.timerContainerUp}>
+					<div className={getClass(m.container, m.containerWrapper)}>
+						<div className={m.container}>
 							<span
-								className={getClass('pointer', m.timerIcon)}
+								className={getClass('pointer', m.icon)}
 								onClick={() => {
 									setHours((h) => (h === MAX_HOURS ? 0 : h + 1))
 									setValueSelected('hour')
@@ -191,7 +188,7 @@ const TimerModal = ({ id, Modal, setTimers, defaultValues }: ITimerModalProps) =
 								<Chevron.Up />
 							</span>
 							<span
-								className={getClass('pointer', m.timerIcon)}
+								className={getClass('pointer', m.icon)}
 								onClick={() => {
 									setMinutes((m) => (m === MAX_MINUTES ? 0 : m + 1))
 									setValueSelected('minute')
@@ -200,7 +197,7 @@ const TimerModal = ({ id, Modal, setTimers, defaultValues }: ITimerModalProps) =
 								<Chevron.Up />
 							</span>
 							<span
-								className={getClass('pointer', m.timerIcon)}
+								className={getClass('pointer', m.icon)}
 								onClick={() => {
 									setSeconds((s) => (s === MAX_SECONDS ? 0 : s + 1))
 									setValueSelected('second')
@@ -210,32 +207,32 @@ const TimerModal = ({ id, Modal, setTimers, defaultValues }: ITimerModalProps) =
 							</span>
 						</div>
 
-						<div className={m.timerContainerValues}>
+						<div className={getClass(m.container, m.containerDigits)}>
 							<div
-								className={getClass(m.timerValue, valueSelected === 'hour' && m.timerValueSelected)}
+								className={getClass(m.digitWrapper, valueSelected === 'hour' && m.digitWrapperSelected)}
 								onClick={() => setValueSelected('hour')}
 							>
-								<span className={m.timerDigit}>{padZero(hours)}</span>
+								<span className={m.digit}>{padZero(hours)}</span>
 							</div>
-							<span className={m.timerDigit}>:</span>
+							<span className={m.digit}>:</span>
 							<div
-								className={getClass(m.timerValue, valueSelected === 'minute' && m.timerValueSelected)}
+								className={getClass(m.digitWrapper, valueSelected === 'minute' && m.digitWrapperSelected)}
 								onClick={() => setValueSelected('minute')}
 							>
-								<span className={m.timerDigit}>{padZero(minutes)}</span>
+								<span className={m.digit}>{padZero(minutes)}</span>
 							</div>
-							<span className={m.timerDigit}>:</span>
+							<span className={m.digit}>:</span>
 							<div
-								className={getClass(m.timerValue, valueSelected === 'second' && m.timerValueSelected)}
+								className={getClass(m.digitWrapper, valueSelected === 'second' && m.digitWrapperSelected)}
 								onClick={() => setValueSelected('second')}
 							>
-								<span className={m.timerDigit}>{padZero(seconds)}</span>
+								<span className={m.digit}>{padZero(seconds)}</span>
 							</div>
 						</div>
 
-						<div className={m.timerContainerDown}>
+						<div className={m.container}>
 							<span
-								className={getClass('pointer', m.timerIcon)}
+								className={getClass('pointer', m.icon)}
 								onClick={() => {
 									setHours((h) => (h ? h - 1 : MAX_HOURS))
 									setValueSelected('hour')
@@ -244,7 +241,7 @@ const TimerModal = ({ id, Modal, setTimers, defaultValues }: ITimerModalProps) =
 								<Chevron.Down />
 							</span>
 							<span
-								className={getClass('pointer', m.timerIcon)}
+								className={getClass('pointer', m.icon)}
 								onClick={() => {
 									setMinutes((m) => (m ? m - 1 : MAX_MINUTES))
 									setValueSelected('minute')
@@ -253,7 +250,7 @@ const TimerModal = ({ id, Modal, setTimers, defaultValues }: ITimerModalProps) =
 								<Chevron.Down />
 							</span>
 							<span
-								className={getClass('pointer', m.timerIcon)}
+								className={getClass('pointer', m.icon)}
 								onClick={() => {
 									setSeconds((s) => (s ? s - 1 : MAX_SECONDS))
 									setValueSelected('second')
@@ -264,9 +261,9 @@ const TimerModal = ({ id, Modal, setTimers, defaultValues }: ITimerModalProps) =
 						</div>
 					</div>
 
-					<div className={m.timerInputContainer}>
+					<div className={m.inputWrapper}>
 						<Edit width={18} height={18} />
-						<input type='text' value={name} className={m.timerInput} onChange={({ target }) => setName(target.value)} />
+						<input type='text' value={name} className={m.input} onChange={({ target }) => setName(target.value)} />
 					</div>
 				</Fragment>
 			)
@@ -274,10 +271,11 @@ const TimerModal = ({ id, Modal, setTimers, defaultValues }: ITimerModalProps) =
 	</Modal>
 )
 
-const Timer = ({ maximized, setMaximized }: ICommonProps) => {
+const Timer: React.FC<ICommonProps> = (props) => {
 	const [timers, setTimers] = useState<Array<ITimer>>([{ id: 0, name: '5 Seconds', duration: 500 }])
 	const [maximizedCounter, setMaximizedCounter] = useState<ITimer['id']>()
 	const { toggleModal, Modal } = useModal()
+	const { maximized } = props
 
 	return (
 		<Fragment>
@@ -290,11 +288,10 @@ const Timer = ({ maximized, setMaximized }: ICommonProps) => {
 						<Counter
 							id={id}
 							key={id}
+							{...props}
 							name={name}
 							duration={duration}
-							maximized={maximized}
 							setTimers={setTimers}
-							setMaximized={setMaximized}
 							setMaximizedCounter={setMaximizedCounter}
 						/>
 					))}

@@ -1,0 +1,29 @@
+$white: #fff;
+$black: #000;
+
+$highlight: #48b2ea;
+
+$primary-dark: #26272a;
+$primary-light: #2d2d2d;
+
+$secondary-dark: #2a2e38;
+$secondary-light: #2e323d;
+
+.card {
+	min-width: 400px;
+	border-radius: 0.5rem;
+	background: $secondary-dark;
+	padding: 0.75rem;
+
+	flex-direction: column;
+	display: flex;
+	gap: 0.5rem;
+
+	transition: all 150ms ease;
+
+	&:hover {
+		box-shadow: 0 4px 0.5rem darken($color: $secondary-dark, $amount: 3.5%);
+		background: $secondary-light;
+		transform: translateY(-4px);
+	}
+}

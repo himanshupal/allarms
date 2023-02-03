@@ -12,7 +12,7 @@ interface ILap {
 	ts: number
 }
 
-const Stopwatch = ({ maximized, setMaximized }: ICommonProps) => {
+const Stopwatch: React.FC<ICommonProps> = ({ maximized, setMaximized }) => {
 	const [isActive, setActive] = useState<boolean>(false)
 	const [timer, setTimer] = useState<NodeJS.Timer>()
 	const [laps, setLaps] = useState<Array<ILap>>([])

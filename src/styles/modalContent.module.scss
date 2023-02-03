@@ -1,47 +1,90 @@
-.timer {
-	$parent: &;
+.container {
+	gap: 0.35rem;
+	display: flex;
+	justify-content: space-around;
 
-	&Container {
-		gap: 0.35rem;
-		display: flex;
+	&Wrapper {
 		margin: 1.5rem 0;
 		flex-direction: column;
-
-		&Up,
-		&Down,
-		&Values {
-			display: flex;
-			justify-content: space-around;
-		}
-
-		&Values {
-			padding: 0.25rem;
-			align-items: center;
-			background: #1e1c1c;
-			border-radius: 0.25rem;
-			border-bottom: 2px solid #48b2ea;
-
-			> #{$parent}Digit {
-				font-weight: 500;
-				width: 1rem;
-			}
-		}
 	}
 
-	&Icon {
-		display: grid;
+	&Digits {
 		padding: 0.25rem;
-		place-content: center;
+		align-items: center;
+		background: #1e1c1c;
 		border-radius: 0.25rem;
-		transition: all 125ms ease-in-out;
+		border-bottom: 2px solid #48b2ea;
+	}
 
-		&:hover {
-			background: #1e1c1c;
+	&Padded {
+		gap: 0.5rem;
+		padding: 0.5rem 0;
+		align-items: center;
+		justify-content: flex-start;
+	}
+
+	&Checkbox {
+		> input[type='checkbox'] {
+			margin: unset;
+			font-size: 1rem;
 		}
 	}
 
-	&Value {
+	&Dropdown {
+		gap: 0.75rem;
+		width: 100%;
+		display: flex;
+		margin: 1.25rem 0;
+		position: relative;
+		align-items: center;
+		justify-content: space-between;
+	}
+}
+
+.icon {
+	display: grid;
+	padding: 0.25rem;
+	place-content: center;
+	border-radius: 0.25rem;
+	transition: all 125ms ease-in-out;
+
+	&:hover {
+		background: $primary-light;
+	}
+}
+
+.input {
+	flex: 1;
+	padding: 0.5rem;
+	color: white;
+	border: unset;
+	background: #1e1c1c;
+	border-radius: 0.25rem;
+	border-bottom: 2px solid #1e1c1c;
+
+	&:focus-visible {
+		outline: none;
+		border-bottom: 2px solid $highlight;
+	}
+
+	&Wrapper {
+		gap: 0.75rem;
+		display: flex;
+		margin: 1.5rem 0;
+		align-items: center;
+	}
+}
+
+.digit {
+	font-weight: 700;
+	font-size: 2.75rem;
+	text-align: center;
+
+	$parent: &;
+
+	&Wrapper {
 		flex: 1;
+		width: 72px;
 		display: flex;
 		padding: 0.5rem;
 		align-items: center;
@@ -53,33 +96,49 @@
 			background-color: #242528;
 		}
 	}
+}
 
-	&Digit {
-		width: 100%;
-		font-weight: 700;
-		font-size: 2.75rem;
-		text-align: center;
+.dropdown {
+	$parent: &;
+
+	flex: 1;
+	border: unset;
+	padding: 0.35rem 0.5rem;
+	background: #1e1c1c;
+	border-radius: 0.25rem;
+	position: relative;
+	color: white;
+
+	transition: all 125ms ease-in-out;
+
+	&:hover {
+		background: $primary-light;
 	}
 
-	&Input {
-		flex: 1;
+	&Option {
 		padding: 0.5rem;
-		color: white;
-		border: unset;
-		background: #1e1c1c;
 		border-radius: 0.25rem;
-		border-bottom: 2px solid #1e1c1c;
 
-		&:focus-visible {
-			outline: none;
-			border-bottom: 2px solid #48b2ea;
+		&:hover {
+			background: $primary-dark;
 		}
 
-		&Container {
-			gap: 0.75rem;
-			display: flex;
-			margin: 1.5rem 0;
-			align-items: center;
+		&Wrapper {
+			display: none;
+			position: absolute;
+			background: rgba($primary-light, 0.9);
+			transition: all 125ms ease-in-out;
+			backdrop-filter: blur(5px);
+			flex-direction: column;
+			border-radius: 0.25rem;
+			z-index: 100;
+			width: 100%;
+			top: 100%;
+			left: 0%;
+
+			&Active {
+				display: flex;
+			}
 		}
 	}
 }
