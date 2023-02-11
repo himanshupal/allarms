@@ -7,6 +7,12 @@ import Timer from '@/components/Timer'
 import Alarm from '@/components/Alarm'
 import { Theme } from '@/types/Theme'
 
+import customParseFormat from 'dayjs/plugin/customParseFormat'
+import objectSupport from 'dayjs/plugin/objectSupport'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import utc from 'dayjs/plugin/utc'
+import dayjs from 'dayjs'
+
 import '@/styles/main.scss'
 
 const App = function () {
@@ -43,6 +49,11 @@ const App = function () {
 		</Layout>
 	)
 }
+
+dayjs.extend(customParseFormat)
+dayjs.extend(objectSupport)
+dayjs.extend(relativeTime)
+dayjs.extend(utc)
 
 const rootEl = document.getElementById('app')!
 createRoot(rootEl).render(<App />)

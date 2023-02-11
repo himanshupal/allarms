@@ -1,10 +1,11 @@
-import { Fragment, useId, useMemo, useState } from 'react'
-import { Chevron, Edit, Plus } from '@/components/Icons'
+import { BellCrossed, Chevron, Clock, Edit, Music, Pause, Play, Plus } from '@/components/Icons'
+import { Fragment, memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import useModal, { IModalProps } from '@/hooks/useModal'
 import type { ICommonProps } from '@/types/Common'
 import { getClass, padZero } from '@/utils'
 import Toggle from '@/components/Toggle'
 import { MAX_MINUTES } from '@/config'
+import dayjs, { Dayjs } from 'dayjs'
 
 import m from '@/styles/modalContent.module.scss'
 import s from './styles.module.scss'
@@ -20,37 +21,37 @@ import bounce from '@/assets/media/bounce.wav'
 import echo from '@/assets/media/echo.wav'
 import tap from '@/assets/media/tap.wav'
 
+type Meridian = 'AM' | 'PM'
 type SelectedValue = 'hour' | 'minute' | 'second'
 type Day = 'Su' | 'Mo' | 'Tu' | 'We' | 'Th' | 'Fr' | 'Sa'
 
 interface IChime {
 	id: string
-	name: string
+	title: string
 	media: string
 }
 
 interface IInterval {
 	id: string
-	name: string
+	title: string
 	value: number
 }
 
-interface IAlarmCardProps extends ICommonProps {
-	title: string
-	endAt: number
-	repeatOn: Array<Day>
-	snoozeDuration: number
-}
-
 interface IAlarm {
+	endAt: { hour: number; minute: number; phase: Meridian }
 	snoozeDuration: number
 	repeatOn: Array<Day>
-	endAt: number
+	isActive: boolean
+	chime: IChime
 	title: string
 	id: number
 }
 
-interface ITimerModalProps {
+interface IAlarmCardProps extends ICommonProps, IAlarm {
+	toggleActive: (id: IAlarm['id']) => void
+}
+
+interface IAlarmModalProps {
 	id?: number
 	Modal: React.MemoExoticComponent<({ title, children }: IModalProps) => JSX.Element | null>
 	defaultValues?: Record<SelectedValue, number> & { title: string; chime: IChime; interval: IInterval }
@@ -60,65 +61,102 @@ interface ITimerModalProps {
 const days: Array<Day> = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
 
 const chimeOptions: Array<IChime> = [
-	{ id: '1', name: 'Chimes', media: chimes },
-	{ id: '2', name: 'Xylophone', media: xylophone },
-	{ id: '3', name: 'Chords', media: chords },
-	{ id: '4', name: 'Tap', media: tap },
-	{ id: '5', name: 'Jingle', media: jingle },
-	{ id: '6', name: 'Transition', media: transition },
-	{ id: '7', name: 'Descending', media: descending },
-	{ id: '8', name: 'Bounce', media: bounce },
-	{ id: '9', name: 'Echo', media: echo },
-	{ id: '10', name: 'Ascending', media: ascending },
+	{ id: '1', title: 'Chimes', media: chimes },
+	{ id: '2', title: 'Xylophone', media: xylophone },
+	{ id: '3', title: 'Chords', media: chords },
+	{ id: '4', title: 'Tap', media: tap },
+	{ id: '5', title: 'Jingle', media: jingle },
+	{ id: '6', title: 'Transition', media: transition },
+	{ id: '7', title: 'Descending', media: descending },
+	{ id: '8', title: 'Bounce', media: bounce },
+	{ id: '9', title: 'Echo', media: echo },
+	{ id: '10', title: 'Ascending', media: ascending },
 ]
 
 const intervalOptions: Array<IInterval> = [
-	{ id: '0', name: 'Disabled', value: 0 },
-	{ id: '1', name: '5 Minutes', value: 1000 * 60 * 5 },
-	{ id: '2', name: '10 Minutes', value: 1000 * 60 * 10 },
-	{ id: '3', name: '15 Minutes', value: 1000 * 60 * 15 },
-	{ id: '4', name: '30 Minutes', value: 1000 * 60 * 30 },
-	{ id: '5', name: '45 Minutes', value: 1000 * 60 * 45 },
-	{ id: '6', name: '1 Hour', value: 1000 * 60 * 60 },
+	{ id: '0', title: 'Disabled', value: 0 },
+	{ id: '1', title: '5 Minutes', value: 1000 * 60 * 5 },
+	{ id: '2', title: '10 Minutes', value: 1000 * 60 * 10 },
+	{ id: '3', title: '15 Minutes', value: 1000 * 60 * 15 },
+	{ id: '4', title: '30 Minutes', value: 1000 * 60 * 30 },
+	{ id: '5', title: '45 Minutes', value: 1000 * 60 * 45 },
+	{ id: '6', title: '1 Hour', value: 1000 * 60 * 60 },
 ]
 
-const AlarmCard: React.FC<IAlarmCardProps> = ({ title, endAt, repeatOn, snoozeDuration }) => {
-	const [isActive, setIsActive] = useState<boolean>(false)
+const AlarmCard: React.FC<IAlarmCardProps> = memo(
+	({ id, title, endAt, chime, repeatOn, isActive, toggleActive, snoozeDuration }) => {
+		const getEndsOn = useCallback(() => {
+			let endAtHour = endAt.hour === 12 ? 0 : endAt.hour
+			if (endAt.phase === 'PM') endAtHour += 12
+			let endsOn = dayjs().set('hour', endAtHour).set('minute', endAt.minute)
+			if (endsOn.isBefore(dayjs())) endsOn = endsOn.add(1, 'day')
+			return endsOn
+		}, [endAt])
 
-	const toggleAlarm = () => setIsActive((a) => !a)
+		const [endsOn, setEndsOn] = useState<Dayjs>(getEndsOn())
+		const audioRef = useRef<HTMLAudioElement | null>(null)
+		const [timer, setTimer] = useState<NodeJS.Timer>()
 
-	return (
-		<div className={s.alarmCard}>
-			<div className={s.alarmCardEndTimeContainer}>
-				<div className={s.alarmCardEndTime}>
-					7:00
-					<span>AM</span>
-				</div>
-				<Toggle checked={isActive} onToggle={toggleAlarm} />
-			</div>
-			<div className={s.alarmCardTimeLeft}>
-				{/* <Bell /> */}
-				Rings in 12 hours, 2 minutes
-			</div>
-			<div className={s.alarmCardTitle}>{title}</div>
-			<div className={s.alarmCardDayRow}>
-				{days.map((day) => (
-					<div key={day} className={getClass('pointer', s.alarmDay, repeatOn.includes(day) && s.alarmDayActive)}>
-						{day}
+		const secondsLeft = endsOn.unix() - dayjs().unix()
+		const hoursLeft = useMemo(() => Math.floor(secondsLeft / 60 / 60), [secondsLeft])
+		const minutesLeft = useMemo(() => Math.floor((secondsLeft / 60) % 60), [secondsLeft])
+
+		const initiateTimer = () => setTimer(setInterval(updateEndsOn, 100))
+		const updateEndsOn = () => setEndsOn(getEndsOn())
+		const toggleAlarm = () => toggleActive(id)
+
+		useEffect(() => {
+			if (!timer) return
+			if (!hoursLeft && !minutesLeft) {
+				clearInterval(timer)
+				if (isActive) audioRef.current?.play()
+				else initiateTimer()
+			}
+		}, [hoursLeft, minutesLeft])
+
+		useEffect(() => {
+			initiateTimer()
+			audioRef.current?.addEventListener('ended', initiateTimer)
+			return () => {
+				clearInterval(timer)
+				audioRef.current?.removeEventListener('ended', initiateTimer)
+			}
+		}, [])
+
+		return (
+			<div className={s.alarmCard}>
+				<audio ref={audioRef} src={chime.media} />
+				<div className={s.alarmCardEndTimeContainer}>
+					<div className={s.alarmCardEndTime}>
+						{padZero(endAt.hour)}:{padZero(endAt.minute)}
+						<span>{endAt.phase}</span>
 					</div>
-				))}
+					<Toggle checked={isActive} onToggle={toggleAlarm} />
+				</div>
+				<div className={s.alarmCardTimeLeft}>
+					<Clock width={14} height={14} />
+					Rings in {hoursLeft} hours, {minutesLeft} minutes
+				</div>
+				<div className={s.alarmCardTitle}>{title}</div>
+				<div className={s.alarmCardDayRow}>
+					{days.map((day) => (
+						<div key={day} className={getClass(s.alarmDay, repeatOn.includes(day) && s.alarmDayActive)}>
+							{day}
+						</div>
+					))}
+				</div>
 			</div>
-		</div>
-	)
-}
+		)
+	}
+)
 
-const AlarmModal: React.FC<ITimerModalProps> = ({ id, Modal, setAlarms, defaultValues }) => (
+const AlarmModal: React.FC<IAlarmModalProps> = ({ id, Modal, setAlarms, defaultValues }) => (
 	<Modal title={defaultValues ? 'Edit Alarm' : 'Add Alarm'} showDeleteIcon={!!defaultValues}>
 		{({ onSave, onDelete, toggleModal }) => {
-			const [phase, setPhase] = useState<'AM' | 'PM'>('AM')
-			const [name, setName] = useState<string>(defaultValues?.title || '')
-			const [hours, setHours] = useState<number>(defaultValues?.hour || 12)
-			const [minutes, setMinutes] = useState<number>(defaultValues?.minute || 0)
+			const [phase, setPhase] = useState<Meridian>('AM')
+			const [hour, setHour] = useState<number>(defaultValues?.hour || 12)
+			const [title, setTitle] = useState<string>(defaultValues?.title || '')
+			const [minute, setMinute] = useState<number>(defaultValues?.minute || 0)
 			const [valueSelected, setValueSelected] = useState<SelectedValue>('hour')
 			const [dropdownActive, setDropdownActive] = useState<number | null>(null)
 
@@ -139,21 +177,36 @@ const AlarmModal: React.FC<ITimerModalProps> = ({ id, Modal, setAlarms, defaultV
 			)
 
 			onSave.current = () => {
-				const minutesToSave = minutes * 60 * 1000
-				const hoursToSave = hours * 60 * 60 * 1000
-				const endAt = (hoursToSave + minutesToSave) / 10
-				if (!name || !endAt) return
+				if (!title) return
 
 				let alarms: Array<IAlarm> | ((prevState: Array<IAlarm>) => Array<IAlarm>)
 				if (defaultValues && id !== undefined) {
 					alarms = (t) =>
 						t.map((v) =>
-							v.id === id ? { id, title: name, endAt, repeatOn, snoozeDuration: selectedInterval.value / 10 } : v
+							v.id === id
+								? {
+										id,
+										title,
+										repeatOn,
+										isActive: v.isActive,
+										chime: selectedChime,
+										endAt: { hour, minute, phase },
+										snoozeDuration: selectedInterval.value / 10,
+								  }
+								: v
 						)
 				} else {
 					alarms = (t) => [
 						...t,
-						{ id: t.length, title: name, endAt, repeatOn, snoozeDuration: selectedInterval.value / 10 },
+						{
+							id: t.length,
+							title,
+							repeatOn,
+							isActive: true,
+							chime: selectedChime,
+							endAt: { hour, minute, phase },
+							snoozeDuration: selectedInterval.value / 10,
+						},
 					]
 				}
 
@@ -173,7 +226,7 @@ const AlarmModal: React.FC<ITimerModalProps> = ({ id, Modal, setAlarms, defaultV
 							<span
 								className={getClass('pointer', m.icon)}
 								onClick={() => {
-									setHours((h) => (h === 12 ? 1 : h + 1))
+									setHour((h) => (h === 12 ? 1 : h + 1))
 									setValueSelected('hour')
 								}}
 							>
@@ -182,7 +235,7 @@ const AlarmModal: React.FC<ITimerModalProps> = ({ id, Modal, setAlarms, defaultV
 							<span
 								className={getClass('pointer', m.icon)}
 								onClick={() => {
-									setMinutes((m) => (m === MAX_MINUTES ? 0 : m + 1))
+									setMinute((m) => (m === MAX_MINUTES ? 0 : m + 1))
 									setValueSelected('minute')
 								}}
 							>
@@ -204,14 +257,14 @@ const AlarmModal: React.FC<ITimerModalProps> = ({ id, Modal, setAlarms, defaultV
 								className={getClass(m.digitWrapper, valueSelected === 'hour' && m.digitWrapperSelected)}
 								onClick={() => setValueSelected('hour')}
 							>
-								<span className={m.digit}>{padZero(hours)}</span>
+								<span className={m.digit}>{padZero(hour)}</span>
 							</div>
 							<span className={m.digit}>:</span>
 							<div
 								className={getClass(m.digitWrapper, valueSelected === 'minute' && m.digitWrapperSelected)}
 								onClick={() => setValueSelected('minute')}
 							>
-								<span className={m.digit}>{padZero(minutes)}</span>
+								<span className={m.digit}>{padZero(minute)}</span>
 							</div>
 							<span className={m.digit}>:</span>
 							<div
@@ -226,7 +279,7 @@ const AlarmModal: React.FC<ITimerModalProps> = ({ id, Modal, setAlarms, defaultV
 							<span
 								className={getClass('pointer', m.icon)}
 								onClick={() => {
-									setHours((h) => h - 1 || 12)
+									setHour((h) => h - 1 || 12)
 									setValueSelected('hour')
 								}}
 							>
@@ -235,7 +288,7 @@ const AlarmModal: React.FC<ITimerModalProps> = ({ id, Modal, setAlarms, defaultV
 							<span
 								className={getClass('pointer', m.icon)}
 								onClick={() => {
-									setMinutes((m) => (m ? m - 1 : MAX_MINUTES))
+									setMinute((m) => (m ? m - 1 : MAX_MINUTES))
 									setValueSelected('minute')
 								}}
 							>
@@ -255,7 +308,7 @@ const AlarmModal: React.FC<ITimerModalProps> = ({ id, Modal, setAlarms, defaultV
 
 					<div className={m.inputWrapper}>
 						<Edit width={18} height={18} />
-						<input type='text' value={name} className={m.input} onChange={({ target }) => setName(target.value)} />
+						<input type='text' value={title} className={m.input} onChange={({ target }) => setTitle(target.value)} />
 					</div>
 
 					<div className={getClass(m.container, m.containerPadded, m.containerCheckbox)}>
@@ -268,7 +321,7 @@ const AlarmModal: React.FC<ITimerModalProps> = ({ id, Modal, setAlarms, defaultV
 						<label htmlFor={repeatAlarmSwitchId}>Repeat Alarm</label>
 					</div>
 
-					<div className={getClass(m.container, m.containerPadded)}>
+					<div className={getClass(m.container, m.containerPadded)} style={{ justifyContent: 'space-evenly' }}>
 						{days.map((day) => (
 							<div
 								key={day}
@@ -284,36 +337,63 @@ const AlarmModal: React.FC<ITimerModalProps> = ({ id, Modal, setAlarms, defaultV
 					</div>
 
 					<div title='Alarm Chime' className={getClass(m.container, m.containerDropdown)}>
-						<Edit width={18} height={18} />
+						<Music width={18} height={18} />
 						<div className={m.dropdown} onClick={() => !dropdownActive && setDropdownActive(1)}>
-							{selectedChime.name}
+							{selectedChime.title}
 							<div
 								className={getClass(m.dropdownOptionWrapper, dropdownActive === 1 && m.dropdownOptionWrapperActive)}
-								style={{ top: -(currentChimeIndex * 37) }}
+								style={{ top: -((currentChimeIndex > 5 ? 5 : currentChimeIndex) * 37) }}
 							>
-								{chimeOptions.map((chime) => (
-									<span
-										key={chime.id}
-										onClick={() => {
-											setSelectedChime(chime)
-											setDropdownActive(null)
-										}}
-										className={m.dropdownOption}
-									>
-										{chime.name}
-									</span>
-								))}
+								{chimeOptions.map((chime) => {
+									const media = useRef<HTMLAudioElement | null>(null)
+									const [playing, setPlaying] = useState<boolean>(true)
+									const toggleMediaStatus = () => setPlaying((p) => !p)
+
+									useEffect(() => {
+										if (playing) {
+											if (!media.current?.ended) {
+												media.current?.pause()
+											}
+										} else {
+											media.current?.play()
+										}
+									}, [playing])
+
+									useEffect(() => {
+										media.current?.addEventListener('ended', toggleMediaStatus)
+										return () => {
+											media.current?.removeEventListener('ended', toggleMediaStatus)
+										}
+									}, [])
+
+									return (
+										<div key={chime.id} className={m.dropdownOption}>
+											<audio ref={media} src={chime.media} />
+											<span className='pointer' onClick={toggleMediaStatus}>
+												{playing ? <Play fill='white' /> : <Pause fill='white' />}
+											</span>
+											<span
+												onClick={() => {
+													setSelectedChime(chime)
+													setDropdownActive(null)
+												}}
+											>
+												{chime.title}
+											</span>
+										</div>
+									)
+								})}
 							</div>
 						</div>
 					</div>
 
 					<div title='Snooze Time' className={getClass(m.container, m.containerDropdown)}>
-						<Edit width={18} height={18} />
+						<BellCrossed width={18} height={18} />
 						<div className={m.dropdown} onClick={() => !dropdownActive && setDropdownActive(2)}>
-							{selectedInterval.name}
+							{selectedInterval.title}
 							<div
 								className={getClass(m.dropdownOptionWrapper, dropdownActive === 2 && m.dropdownOptionWrapperActive)}
-								style={{ top: -(currentIntervalIndex * 37) }}
+								style={{ top: -((currentIntervalIndex > 5 ? 5 : currentIntervalIndex) * 37) }}
 							>
 								{intervalOptions.map((interval) => (
 									<span
@@ -324,7 +404,7 @@ const AlarmModal: React.FC<ITimerModalProps> = ({ id, Modal, setAlarms, defaultV
 										}}
 										className={m.dropdownOption}
 									>
-										{interval.name}
+										{interval.title}
 									</span>
 								))}
 							</div>
@@ -338,25 +418,32 @@ const AlarmModal: React.FC<ITimerModalProps> = ({ id, Modal, setAlarms, defaultV
 
 const Alarm: React.FC<ICommonProps> = (props) => {
 	const [alarms, setAlarms] = useState<Array<IAlarm>>([
-		{ title: 'Test', id: 1, endAt: 153, repeatOn: ['Mo', 'Sa'], snoozeDuration: 1555 },
+		{
+			id: 0,
+			title: 'Test',
+			isActive: true,
+			endAt: { hour: 12, minute: 0, phase: 'PM' },
+			repeatOn: ['Mo', 'Sa'],
+			snoozeDuration: 1555,
+			chime: chimeOptions[0],
+		},
 	])
 	const { toggleModal, Modal } = useModal()
 	const { maximized } = props
+
+	const toggleActive = (id: IAlarm['id']) => {
+		setAlarms((a) => a.map((al) => (al.id === id ? { ...al, isActive: !al.isActive } : al)))
+	}
 
 	return (
 		<Fragment>
 			<AlarmModal Modal={Modal} setAlarms={setAlarms} />
 
-			{alarms.map(({ id, title, repeatOn, endAt, snoozeDuration }) => (
-				<AlarmCard
-					key={id}
-					{...props}
-					title={title}
-					endAt={endAt}
-					repeatOn={repeatOn}
-					snoozeDuration={snoozeDuration}
-				/>
-			))}
+			<div className={s.alarm}>
+				{alarms.map((alarm) => (
+					<AlarmCard key={alarm.id} {...props} {...alarm} toggleActive={toggleActive} />
+				))}
+			</div>
 
 			{!maximized && (
 				<div title='Add Alarm' className={getClass('pointer', s.alarmNew)} onClick={toggleModal}>

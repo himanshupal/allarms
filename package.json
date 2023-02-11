@@ -9,6 +9,7 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
+		"dayjs": "^1.11.7",
 		"dexie": "^3.2.2",
 		"dexie-react-hooks": "^1.1.1",
 		"react": "^18.2.0",

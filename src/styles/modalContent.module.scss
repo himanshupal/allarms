@@ -118,6 +118,9 @@
 	&Option {
 		padding: 0.5rem;
 		border-radius: 0.25rem;
+		align-items: center;
+		display: flex;
+		gap: 0.5rem;
 
 		&:hover {
 			background: $primary-dark;
@@ -125,6 +128,8 @@
 
 		&Wrapper {
 			display: none;
+			overflow: auto;
+			max-height: 350px;
 			position: absolute;
 			background: rgba($primary-light, 0.9);
 			transition: all 125ms ease-in-out;
@@ -138,6 +143,17 @@
 
 			&Active {
 				display: flex;
+			}
+		}
+
+		> span {
+			&:first-of-type {
+				display: grid;
+				place-content: center;
+			}
+
+			&:last-of-type {
+				flex: 1;
 			}
 		}
 	}

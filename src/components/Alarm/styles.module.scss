@@ -1,4 +1,8 @@
 .alarm {
+	gap: 1rem;
+	display: flex;
+	flex-wrap: wrap;
+
 	&Card {
 		@extend .card;
 
@@ -19,7 +23,10 @@
 		}
 
 		&TimeLeft {
+			align-items: center;
 			font-weight: 300;
+			display: flex;
+			gap: 0.35rem;
 		}
 
 		&Title {
