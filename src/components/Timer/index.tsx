@@ -4,32 +4,28 @@ import { MAX_HOURS, MAX_MINUTES, MAX_SECONDS } from '@/config'
 import { getClass, getElapsed, padZero } from '@/utils'
 import type { ICommonProps } from '@/types/Common'
 import type { IModalProps } from '@/hooks/useModal'
+import { useLiveQuery } from 'dexie-react-hooks'
+import type { ITimer } from '@/types/Timer'
 import useModal from '@/hooks/useModal'
+import db from '@/database'
+import cuid from 'cuid'
 
 import m from '@/styles/modalContent.module.scss'
 import s from './styles.module.scss'
 
 type SelectedValue = 'hour' | 'minute' | 'second'
 
-interface ITimer {
-	duration: number
-	name: string
-	id: number
-}
-
-interface ICounterProps extends ITimer, ICommonProps {
-	setMaximizedCounter: React.Dispatch<React.SetStateAction<number | undefined>>
-	setTimers: React.Dispatch<React.SetStateAction<Array<ITimer>>>
+export interface ICounterProps extends ITimer, ICommonProps {
+	setMaximizedCounter: React.Dispatch<React.SetStateAction<ITimer['id'] | undefined>>
 }
 
 interface ITimerModalProps {
-	id?: number
+	id?: ITimer['id']
 	Modal: React.MemoExoticComponent<({ title, children }: IModalProps) => JSX.Element | null>
-	setTimers: React.Dispatch<React.SetStateAction<Array<ITimer>>>
 	defaultValues?: Record<SelectedValue, number> & { name: string }
 }
 
-const Counter = ({ id, name, duration, maximized, setMaximized, setTimers, setMaximizedCounter }: ICounterProps) => {
+const Counter = ({ id, name, duration, maximized, setMaximized, setMaximizedCounter }: ICounterProps) => {
 	const CIRCLE_FRACTIONS = maximized ? 1256 : 628
 
 	const fraction = useRef<number>(CIRCLE_FRACTIONS)
@@ -75,12 +71,7 @@ const Counter = ({ id, name, duration, maximized, setMaximized, setTimers, setMa
 
 	return (
 		<Fragment>
-			<TimerModal
-				id={id}
-				Modal={Modal}
-				setTimers={setTimers}
-				defaultValues={{ name, hour: +hours, minute: +minutes, second: +seconds }}
-			/>
+			<TimerModal id={id} Modal={Modal} defaultValues={{ name, hour: +hours, minute: +minutes, second: +seconds }} />
 
 			<div className={s.timerCard}>
 				<div className={getClass(s.actions, s.actionsTop)}>
@@ -142,7 +133,7 @@ const Counter = ({ id, name, duration, maximized, setMaximized, setTimers, setMa
 	)
 }
 
-const TimerModal: React.FC<ITimerModalProps> = ({ id, Modal, setTimers, defaultValues }) => (
+const TimerModal: React.FC<ITimerModalProps> = ({ id, Modal, defaultValues }) => (
 	<Modal title={defaultValues ? 'Edit Timer' : 'Add New Timer'} showDeleteIcon={!!defaultValues}>
 		{({ onSave, onDelete, toggleModal }) => {
 			const [name, setName] = useState<string>(defaultValues?.name || '')
@@ -158,19 +149,17 @@ const TimerModal: React.FC<ITimerModalProps> = ({ id, Modal, setTimers, defaultV
 				const duration = (hoursToSave + minutesToSave + secondsToSave) / 10
 				if (!name || !duration) return
 
-				let timers: Array<ITimer> | ((prevState: Array<ITimer>) => Array<ITimer>)
 				if (defaultValues && id !== undefined) {
-					timers = (t) => t.map((v) => (v.id === id ? { id, name, duration } : v))
+					db.timers.update(id!, { name, duration })
 				} else {
-					timers = (t) => [...t, { id: t.length, name, duration }]
+					db.timers.add({ id: cuid(), name, duration })
 				}
 
-				setTimers(timers)
 				toggleModal()
 			}
 
 			onDelete.current = () => {
-				setTimers((t) => t.filter(({ id: tId }) => tId !== id))
+				db.timers.delete(id!)
 				toggleModal()
 			}
 
@@ -272,18 +261,18 @@ const TimerModal: React.FC<ITimerModalProps> = ({ id, Modal, setTimers, defaultV
 )
 
 const Timer: React.FC<ICommonProps> = (props) => {
-	const [timers, setTimers] = useState<Array<ITimer>>([{ id: 0, name: '5 Seconds', duration: 500 }])
 	const [maximizedCounter, setMaximizedCounter] = useState<ITimer['id']>()
+	const timers = useLiveQuery(() => db.timers.toArray(), [])
 	const { toggleModal, Modal } = useModal()
 	const { maximized } = props
 
 	return (
 		<Fragment>
-			<TimerModal Modal={Modal} setTimers={setTimers} />
+			<TimerModal Modal={Modal} />
 
 			<div className={getClass(s.timer, maximized && s.timerMaximized)}>
 				{timers
-					.filter(({ id }) => (maximizedCounter !== undefined ? id === maximizedCounter : true))
+					?.filter(({ id }) => (maximizedCounter !== undefined ? id === maximizedCounter : true))
 					.map(({ id, name, duration }) => (
 						<Counter
 							id={id}
@@ -291,7 +280,6 @@ const Timer: React.FC<ICommonProps> = (props) => {
 							{...props}
 							name={name}
 							duration={duration}
-							setTimers={setTimers}
 							setMaximizedCounter={setMaximizedCounter}
 						/>
 					))}

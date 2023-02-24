@@ -399,6 +399,7 @@ __metadata:
     "@types/react": ^18.0.27
     "@types/react-dom": ^18.0.10
     "@vitejs/plugin-react-swc": ^3.0.1
+    cuid: ^3.0.0
     dayjs: ^1.11.7
     dexie: ^3.2.2
     dexie-react-hooks: ^1.1.1
@@ -572,6 +573,13 @@ __metadata:
   version: 3.1.1
   resolution: "csstype@npm:3.1.1"
   checksum: 1f7b4f5fdd955b7444b18ebdddf3f5c699159f13e9cf8ac9027ae4a60ae226aef9bbb14a6e12ca7dba3358b007cee6354b116e720262867c398de6c955ea451d
+  languageName: node
+  linkType: hard
+
+"cuid@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "cuid@npm:3.0.0"
+  checksum: f9a344bd90e26b62f75a86b616ad717bad88b20b02df25c6e4008dd2c0948b081bd72ad8075b25ae644dce7fc367a43c622954e88aed972b72b1f132416faa4e
   languageName: node
   linkType: hard
 

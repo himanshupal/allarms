@@ -6,6 +6,12 @@
 	&Card {
 		@extend .card;
 
+		opacity: 75%;
+
+		&Active {
+			opacity: 100%;
+		}
+
 		&EndTime {
 			font-size: 3.5rem;
 			line-height: 0.85;

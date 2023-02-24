@@ -124,7 +124,7 @@ const AlarmCard: React.FC<IAlarmCardProps> = memo(
 		}, [])
 
 		return (
-			<div className={s.alarmCard}>
+			<div className={getClass(s.alarmCard, isActive && s.alarmCardActive)}>
 				<audio ref={audioRef} src={chime.media} />
 				<div className={s.alarmCardEndTimeContainer}>
 					<div className={s.alarmCardEndTime}>
