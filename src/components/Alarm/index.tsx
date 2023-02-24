@@ -1,11 +1,15 @@
 import { BellCrossed, Chevron, Clock, Edit, Music, Pause, Play, Plus } from '@/components/Icons'
 import { Fragment, memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
+import type { Day, IAlarm, IChime, IInterval, Meridian } from '@/types/Alarm'
+import type { ICommonProps, SelectedValue } from '@/types/Common'
 import useModal, { IModalProps } from '@/hooks/useModal'
-import type { ICommonProps } from '@/types/Common'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { createId } from '@paralleldrive/cuid2'
 import { getClass, padZero } from '@/utils'
 import Toggle from '@/components/Toggle'
 import { MAX_MINUTES } from '@/config'
 import dayjs, { Dayjs } from 'dayjs'
+import db from '@/database'
 
 import m from '@/styles/modalContent.module.scss'
 import s from './styles.module.scss'
@@ -21,41 +25,14 @@ import bounce from '@/assets/media/bounce.wav'
 import echo from '@/assets/media/echo.wav'
 import tap from '@/assets/media/tap.wav'
 
-type Meridian = 'AM' | 'PM'
-type SelectedValue = 'hour' | 'minute' | 'second'
-type Day = 'Su' | 'Mo' | 'Tu' | 'We' | 'Th' | 'Fr' | 'Sa'
-
-interface IChime {
-	id: string
-	title: string
-	media: string
-}
-
-interface IInterval {
-	id: string
-	title: string
-	value: number
-}
-
-interface IAlarm {
-	endAt: { hour: number; minute: number; phase: Meridian }
-	snoozeDuration: number
-	repeatOn: Array<Day>
-	isActive: boolean
-	chime: IChime
-	title: string
-	id: number
-}
-
 interface IAlarmCardProps extends ICommonProps, IAlarm {
 	toggleActive: (id: IAlarm['id']) => void
 }
 
 interface IAlarmModalProps {
-	id?: number
+	id?: IAlarm['id']
 	Modal: React.MemoExoticComponent<({ title, children }: IModalProps) => JSX.Element | null>
 	defaultValues?: Record<SelectedValue, number> & { title: string; chime: IChime; interval: IInterval }
-	setAlarms: React.Dispatch<React.SetStateAction<Array<IAlarm>>>
 }
 
 const days: Array<Day> = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
@@ -150,7 +127,7 @@ const AlarmCard: React.FC<IAlarmCardProps> = memo(
 	}
 )
 
-const AlarmModal: React.FC<IAlarmModalProps> = ({ id, Modal, setAlarms, defaultValues }) => (
+const AlarmModal: React.FC<IAlarmModalProps> = ({ id, Modal, defaultValues }) => (
 	<Modal title={defaultValues ? 'Edit Alarm' : 'Add Alarm'} showDeleteIcon={!!defaultValues}>
 		{({ onSave, onDelete, toggleModal }) => {
 			const [phase, setPhase] = useState<Meridian>('AM')
@@ -179,43 +156,31 @@ const AlarmModal: React.FC<IAlarmModalProps> = ({ id, Modal, setAlarms, defaultV
 			onSave.current = () => {
 				if (!title) return
 
-				let alarms: Array<IAlarm> | ((prevState: Array<IAlarm>) => Array<IAlarm>)
 				if (defaultValues && id !== undefined) {
-					alarms = (t) =>
-						t.map((v) =>
-							v.id === id
-								? {
-										id,
-										title,
-										repeatOn,
-										isActive: v.isActive,
-										chime: selectedChime,
-										endAt: { hour, minute, phase },
-										snoozeDuration: selectedInterval.value / 10,
-								  }
-								: v
-						)
+					db.alarms.update(id!, {
+						title,
+						repeatOn,
+						chime: selectedChime,
+						endAt: { hour, minute, phase },
+						snoozeDuration: selectedInterval.value / 10,
+					})
 				} else {
-					alarms = (t) => [
-						...t,
-						{
-							id: t.length,
-							title,
-							repeatOn,
-							isActive: true,
-							chime: selectedChime,
-							endAt: { hour, minute, phase },
-							snoozeDuration: selectedInterval.value / 10,
-						},
-					]
+					db.alarms.add({
+						id: createId(),
+						title,
+						repeatOn,
+						isActive: true,
+						chime: selectedChime,
+						endAt: { hour, minute, phase },
+						snoozeDuration: selectedInterval.value / 10,
+					})
 				}
 
-				setAlarms(alarms)
 				toggleModal()
 			}
 
 			onDelete.current = () => {
-				setAlarms((t) => t.filter(({ id: tId }) => tId !== id))
+				db.alarms.delete(id!)
 				toggleModal()
 			}
 
@@ -417,30 +382,20 @@ const AlarmModal: React.FC<IAlarmModalProps> = ({ id, Modal, setAlarms, defaultV
 )
 
 const Alarm: React.FC<ICommonProps> = (props) => {
-	const [alarms, setAlarms] = useState<Array<IAlarm>>([
-		{
-			id: 0,
-			title: 'Test',
-			isActive: true,
-			endAt: { hour: 12, minute: 0, phase: 'PM' },
-			repeatOn: ['Mo', 'Sa'],
-			snoozeDuration: 1555,
-			chime: chimeOptions[0],
-		},
-	])
+	const alarms = useLiveQuery(() => db.alarms.toArray(), [])
 	const { toggleModal, Modal } = useModal()
 	const { maximized } = props
 
 	const toggleActive = (id: IAlarm['id']) => {
-		setAlarms((a) => a.map((al) => (al.id === id ? { ...al, isActive: !al.isActive } : al)))
+		db.alarms.get(id).then((v) => v && db.alarms.update(id, { isActive: !v.isActive }))
 	}
 
 	return (
 		<Fragment>
-			<AlarmModal Modal={Modal} setAlarms={setAlarms} />
+			<AlarmModal Modal={Modal} />
 
 			<div className={s.alarm}>
-				{alarms.map((alarm) => (
+				{alarms?.map((alarm) => (
 					<AlarmCard key={alarm.id} {...props} {...alarm} toggleActive={toggleActive} />
 				))}
 			</div>

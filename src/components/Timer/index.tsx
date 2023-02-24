@@ -1,8 +1,8 @@
 import { Maximize, Minimize, Pause, Play, Undo, Plus, Edit, Chevron } from '@/components/Icons'
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import type { ICommonProps, SelectedValue } from '@/types/Common'
 import { MAX_HOURS, MAX_MINUTES, MAX_SECONDS } from '@/config'
 import { getClass, getElapsed, padZero } from '@/utils'
-import type { ICommonProps } from '@/types/Common'
 import type { IModalProps } from '@/hooks/useModal'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { createId } from '@paralleldrive/cuid2'
@@ -12,8 +12,6 @@ import db from '@/database'
 
 import m from '@/styles/modalContent.module.scss'
 import s from './styles.module.scss'
-
-type SelectedValue = 'hour' | 'minute' | 'second'
 
 export interface ICounterProps extends ITimer, ICommonProps {
 	setMaximizedCounter: React.Dispatch<React.SetStateAction<ITimer['id'] | undefined>>
