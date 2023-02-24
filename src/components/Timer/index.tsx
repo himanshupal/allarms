@@ -5,10 +5,10 @@ import { getClass, getElapsed, padZero } from '@/utils'
 import type { ICommonProps } from '@/types/Common'
 import type { IModalProps } from '@/hooks/useModal'
 import { useLiveQuery } from 'dexie-react-hooks'
+import { createId } from '@paralleldrive/cuid2'
 import type { ITimer } from '@/types/Timer'
 import useModal from '@/hooks/useModal'
 import db from '@/database'
-import cuid from 'cuid'
 
 import m from '@/styles/modalContent.module.scss'
 import s from './styles.module.scss'
@@ -152,7 +152,7 @@ const TimerModal: React.FC<ITimerModalProps> = ({ id, Modal, defaultValues }) =>
 				if (defaultValues && id !== undefined) {
 					db.timers.update(id!, { name, duration })
 				} else {
-					db.timers.add({ id: cuid(), name, duration })
+					db.timers.add({ id: createId(), name, duration })
 				}
 
 				toggleModal()
