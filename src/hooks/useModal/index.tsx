@@ -18,7 +18,7 @@ export interface IModalProps {
 }
 
 const useModal = () => {
-	const [modalActive, setModalActive] = useState<boolean>(false)
+	const [isModalActive, setModalActive] = useState<boolean>(false)
 
 	const toggleModal = () => setModalActive((a) => !a)
 
@@ -38,7 +38,7 @@ const useModal = () => {
 			toggleModal()
 		}
 
-		return !modalActive ? null : (
+		return !isModalActive ? null : (
 			<div className={s.modal} onClick={(e) => e.target === e.currentTarget && toggleModal()}>
 				<form className={s.modalContent} onSubmit={onSubmit} onReset={onReset}>
 					<div className={s.modalTitle}>
@@ -63,7 +63,7 @@ const useModal = () => {
 		)
 	})
 
-	return { toggleModal, Modal }
+	return { isModalActive, toggleModal, Modal }
 }
 
 export default useModal

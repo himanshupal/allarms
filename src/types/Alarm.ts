@@ -15,7 +15,8 @@ export interface IInterval {
 
 export interface IAlarm {
 	endAt: { hour: number; minute: number; phase: Meridian }
-	snoozeDuration: number
+	snoozeDuration: IInterval
+	repeatEnabled: boolean
 	repeatOn: Array<Day>
 	isActive: boolean
 	chime: IChime

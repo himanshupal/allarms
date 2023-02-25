@@ -3,6 +3,17 @@
 	display: flex;
 	flex-wrap: wrap;
 
+	&Icon {
+		display: grid;
+		place-content: center;
+	}
+
+	&Icons {
+		align-items: center;
+		display: flex;
+		gap: 1rem;
+	}
+
 	&Card {
 		@extend .card;
 

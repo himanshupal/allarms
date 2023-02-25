@@ -32,7 +32,13 @@ interface IAlarmCardProps extends ICommonProps, IAlarm {
 interface IAlarmModalProps {
 	id?: IAlarm['id']
 	Modal: React.MemoExoticComponent<({ title, children }: IModalProps) => JSX.Element | null>
-	defaultValues?: Record<SelectedValue, number> & { title: string; chime: IChime; interval: IInterval }
+	defaultValues?: Omit<Record<SelectedValue, number> & { phase: Meridian }, 'second'> & {
+		title: IAlarm['title']
+		chime: IAlarm['chime']
+		repeatOn: IAlarm['repeatOn']
+		interval: IAlarm['snoozeDuration']
+		repeatEnabled: IAlarm['repeatEnabled']
+	}
 }
 
 const days: Array<Day> = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
@@ -61,14 +67,18 @@ const intervalOptions: Array<IInterval> = [
 ]
 
 const AlarmCard: React.FC<IAlarmCardProps> = memo(
-	({ id, title, endAt, chime, repeatOn, isActive, toggleActive, snoozeDuration }) => {
+	({ id, endAt, title, chime, repeatOn, isActive, toggleActive, repeatEnabled, snoozeDuration }) => {
+		const { hour, minute, phase } = endAt
+
 		const getEndsOn = useCallback(() => {
-			let endAtHour = endAt.hour === 12 ? 0 : endAt.hour
-			if (endAt.phase === 'PM') endAtHour += 12
-			let endsOn = dayjs().set('hour', endAtHour).set('minute', endAt.minute)
+			let endAtHour = hour === 12 ? 0 : hour
+			if (phase === 'PM') endAtHour += 12
+			let endsOn = dayjs().set('hour', endAtHour).set('minute', minute)
 			if (endsOn.isBefore(dayjs())) endsOn = endsOn.add(1, 'day')
 			return endsOn
-		}, [endAt])
+		}, [hour, minute, phase])
+
+		const { isModalActive, Modal, toggleModal } = useModal()
 
 		const [endsOn, setEndsOn] = useState<Dayjs>(getEndsOn())
 		const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -92,37 +102,58 @@ const AlarmCard: React.FC<IAlarmCardProps> = memo(
 		}, [hoursLeft, minutesLeft])
 
 		useEffect(() => {
-			initiateTimer()
+			// if (isActive) initiateTimer()
+			// if (isModalActive || !isActive) clearInterval(timer)
+
+			if (isModalActive) clearInterval(timer)
+			else initiateTimer()
+
 			audioRef.current?.addEventListener('ended', initiateTimer)
 			return () => {
 				clearInterval(timer)
 				audioRef.current?.removeEventListener('ended', initiateTimer)
 			}
-		}, [])
+		}, [isActive, isModalActive])
 
 		return (
-			<div className={getClass(s.alarmCard, isActive && s.alarmCardActive)}>
-				<audio ref={audioRef} src={chime.media} />
-				<div className={s.alarmCardEndTimeContainer}>
-					<div className={s.alarmCardEndTime}>
-						{padZero(endAt.hour)}:{padZero(endAt.minute)}
-						<span>{endAt.phase}</span>
-					</div>
-					<Toggle checked={isActive} onToggle={toggleAlarm} />
-				</div>
-				<div className={s.alarmCardTimeLeft}>
-					<Clock width={14} height={14} />
-					Rings in {hoursLeft} hours, {minutesLeft} minutes
-				</div>
-				<div className={s.alarmCardTitle}>{title}</div>
-				<div className={s.alarmCardDayRow}>
-					{days.map((day) => (
-						<div key={day} className={getClass(s.alarmDay, repeatOn.includes(day) && s.alarmDayActive)}>
-							{day}
+			<Fragment>
+				<AlarmModal
+					id={id}
+					Modal={Modal}
+					defaultValues={{ title, chime, hour, minute, phase, repeatOn, repeatEnabled, interval: snoozeDuration }}
+				/>
+
+				<div className={getClass(s.alarmCard, isActive && s.alarmCardActive)}>
+					<audio ref={audioRef} src={chime.media} />
+					<div className={s.alarmCardEndTimeContainer}>
+						<div className={s.alarmCardEndTime}>
+							{padZero(hour)}:{padZero(minute)}
+							<span>{phase}</span>
 						</div>
-					))}
+						<span className={s.alarmIcons}>
+							<span className={getClass('pointer', s.alarmIcon)} onClick={toggleModal}>
+								<Edit />
+							</span>
+							<Toggle checked={isActive} onToggle={toggleAlarm} />
+						</span>
+					</div>
+					<div className={s.alarmCardTimeLeft}>
+						<Clock width={14} height={14} />
+						Rings in {hoursLeft} hours, {minutesLeft} minutes
+					</div>
+					<div className={s.alarmCardTitle}>{title}</div>
+					<div className={s.alarmCardDayRow}>
+						{days.map((day) => (
+							<div
+								key={day}
+								className={getClass(s.alarmDay, repeatEnabled && repeatOn.includes(day) && s.alarmDayActive)}
+							>
+								{day}
+							</div>
+						))}
+					</div>
 				</div>
-			</div>
+			</Fragment>
 		)
 	}
 )
@@ -130,18 +161,19 @@ const AlarmCard: React.FC<IAlarmCardProps> = memo(
 const AlarmModal: React.FC<IAlarmModalProps> = ({ id, Modal, defaultValues }) => (
 	<Modal title={defaultValues ? 'Edit Alarm' : 'Add Alarm'} showDeleteIcon={!!defaultValues}>
 		{({ onSave, onDelete, toggleModal }) => {
-			const [phase, setPhase] = useState<Meridian>('AM')
 			const [hour, setHour] = useState<number>(defaultValues?.hour || 12)
 			const [title, setTitle] = useState<string>(defaultValues?.title || '')
 			const [minute, setMinute] = useState<number>(defaultValues?.minute || 0)
+			const [phase, setPhase] = useState<Meridian>(defaultValues?.phase || 'AM')
+
 			const [valueSelected, setValueSelected] = useState<SelectedValue>('hour')
 			const [dropdownActive, setDropdownActive] = useState<number | null>(null)
 
+			const [repeatOn, setRepeatOn] = useState<Array<Day>>(defaultValues?.repeatOn || days)
+			const [repeating, setRepeating] = useState<boolean>(defaultValues?.repeatEnabled ?? true)
 			const [selectedChime, setSelectedChime] = useState<IChime>(defaultValues?.chime || chimeOptions[0])
 			const [selectedInterval, setSelectedInterval] = useState<IInterval>(defaultValues?.interval || intervalOptions[0])
 
-			const [repeatOn, setRepeatOn] = useState<Array<Day>>(days)
-			const [repeating, setRepeating] = useState<boolean>(true)
 			const repeatAlarmSwitchId = useId()
 
 			const currentChimeIndex = useMemo(
@@ -161,8 +193,9 @@ const AlarmModal: React.FC<IAlarmModalProps> = ({ id, Modal, defaultValues }) =>
 						title,
 						repeatOn,
 						chime: selectedChime,
+						repeatEnabled: repeating,
 						endAt: { hour, minute, phase },
-						snoozeDuration: selectedInterval.value / 10,
+						snoozeDuration: selectedInterval,
 					})
 				} else {
 					db.alarms.add({
@@ -171,8 +204,9 @@ const AlarmModal: React.FC<IAlarmModalProps> = ({ id, Modal, defaultValues }) =>
 						repeatOn,
 						isActive: true,
 						chime: selectedChime,
+						repeatEnabled: repeating,
 						endAt: { hour, minute, phase },
-						snoozeDuration: selectedInterval.value / 10,
+						snoozeDuration: selectedInterval,
 					})
 				}
 

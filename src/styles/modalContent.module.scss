@@ -129,7 +129,7 @@
 		&Wrapper {
 			display: none;
 			overflow: auto;
-			max-height: 350px;
+			max-height: 250px;
 			position: absolute;
 			background: rgba($primary-light, 0.9);
 			transition: all 125ms ease-in-out;
@@ -143,6 +143,22 @@
 
 			&Active {
 				display: flex;
+			}
+
+			@media screen and (min-height: 800px) {
+				max-height: 275px;
+			}
+
+			@media screen and (min-height: 850px) {
+				max-height: 300px;
+			}
+
+			@media screen and (min-height: 900px) {
+				max-height: 325px;
+			}
+
+			@media screen and (min-height: 1000px) {
+				max-height: 350px;
 			}
 		}
 
