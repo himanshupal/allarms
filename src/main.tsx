@@ -1,7 +1,7 @@
+import { useEffect, useMemo, useState } from 'react'
 import { Hash, THEME_STORAGE_KEY } from '@/config'
 import Stopwatch from '@/components/Stopwatch'
 import { createRoot } from 'react-dom/client'
-import { useEffect, useState } from 'react'
 import Layout from '@/components/Layout'
 import Timer from '@/components/Timer'
 import Alarm from '@/components/Alarm'
@@ -19,6 +19,16 @@ const App = function () {
 	const [hash, setHash] = useState<Hash>((window.location.hash as Hash) || '#/stopwatch')
 	const [maximized, setMaximized] = useState<boolean>(false)
 	const [theme, setTheme] = useState<Theme>(Theme.ONE)
+
+	const name = useMemo(
+		() =>
+			({
+				'#/alarm': 'Alarm',
+				'#/timer': 'Timer',
+				'#/stopwatch': 'Stopwatch',
+			}[hash]),
+		[hash]
+	)
 
 	useEffect(() => {
 		const savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY)
@@ -41,10 +51,10 @@ const App = function () {
 		'#/stopwatch': Stopwatch,
 	}[hash]
 
-	window.document.title = Component.name
+	window.document.title = name
 
 	return (
-		<Layout name={Component.name} hash={hash} maximized={maximized} setHash={setHash}>
+		<Layout name={name} hash={hash} maximized={maximized} setHash={setHash}>
 			<Component maximized={maximized} setMaximized={setMaximized} />
 		</Layout>
 	)
