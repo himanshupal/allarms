@@ -12,8 +12,8 @@ export default defineConfig({
 			'@': basePath,
 		},
 	},
-	build:{
-		manifest:true,
+	build: {
+		manifest: true,
 	},
 	css: {
 		preprocessorOptions: {

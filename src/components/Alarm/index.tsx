@@ -2,12 +2,12 @@ import { BellCrossed, Chevron, Clock, Edit, Music, Pause, Play, Plus } from '@/c
 import { Fragment, memo, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import type { Day, IAlarm, IChime, IInterval, Meridian } from '@/types/Alarm'
 import type { ICommonProps, SelectedValue } from '@/types/Common'
+import { MAX_MINUTES, SHAKE_ANIM_DURATION } from '@/config'
 import useModal, { IModalProps } from '@/hooks/useModal'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { createId } from '@paralleldrive/cuid2'
 import { getClass, padZero } from '@/utils'
 import Toggle from '@/components/Toggle'
-import { MAX_MINUTES } from '@/config'
 import dayjs, { Dayjs } from 'dayjs'
 import db from '@/database'
 
@@ -81,23 +81,41 @@ const AlarmCard: React.FC<IAlarmCardProps> = memo(
 		const { isModalActive, Modal, toggleModal } = useModal()
 
 		const [endsOn, setEndsOn] = useState<Dayjs>(getEndsOn())
+		const [ringing, setRinging] = useState<boolean>(false)
 		const audioRef = useRef<HTMLAudioElement | null>(null)
 		const [timer, setTimer] = useState<NodeJS.Timer>()
+		const notificationSent = useRef<boolean>(false)
 
-		const secondsLeft = endsOn.unix() - dayjs().unix()
+		const secondsLeft = useMemo(() => endsOn.unix() - dayjs().unix(), [endsOn])
 		const hoursLeft = useMemo(() => Math.floor(secondsLeft / 60 / 60), [secondsLeft])
 		const minutesLeft = useMemo(() => Math.floor((secondsLeft / 60) % 60), [secondsLeft])
+		const isRinging = !(hoursLeft || minutesLeft)
 
 		const initiateTimer = () => setTimer(setInterval(updateEndsOn, 100))
 		const updateEndsOn = () => setEndsOn(getEndsOn())
 		const toggleAlarm = () => toggleActive(id)
 
 		useEffect(() => {
+			if (isRinging) {
+				setRinging(true)
+				if (!notificationSent.current) {
+					new Notification(`Alarm Ringing - ${title}`)
+					notificationSent.current = true
+				}
+				const handler = setTimeout(() => setRinging(false), SHAKE_ANIM_DURATION)
+				return () => clearTimeout(handler)
+			}
+		}, [isRinging])
+
+		useEffect(() => {
 			if (!timer) return
 			if (!hoursLeft && !minutesLeft) {
 				clearInterval(timer)
 				if (isActive) audioRef.current?.play()
-				else initiateTimer()
+				else {
+					notificationSent.current = false
+					initiateTimer()
+				}
 			}
 		}, [hoursLeft, minutesLeft])
 
@@ -123,7 +141,7 @@ const AlarmCard: React.FC<IAlarmCardProps> = memo(
 					defaultValues={{ title, chime, hour, minute, phase, repeatOn, repeatEnabled, interval: snoozeDuration }}
 				/>
 
-				<div className={getClass(s.alarmCard, isActive && s.alarmCardActive)}>
+				<div className={getClass(s.alarmCard, isActive && s.alarmCardActive, ringing && 'shaking')}>
 					<audio ref={audioRef} src={chime.media} />
 					<div className={s.alarmCardEndTimeContainer}>
 						<div className={s.alarmCardEndTime}>
@@ -139,7 +157,7 @@ const AlarmCard: React.FC<IAlarmCardProps> = memo(
 					</div>
 					<div className={s.alarmCardTimeLeft}>
 						<Clock width={14} height={14} />
-						Rings in {hoursLeft} hours, {minutesLeft} minutes
+						{isRinging ? `Ringing...` : `Rings in ${hoursLeft} hours, ${minutesLeft} minutes`}
 					</div>
 					<div className={s.alarmCardTitle}>{title}</div>
 					<div className={s.alarmCardDayRow}>
@@ -386,29 +404,31 @@ const AlarmModal: React.FC<IAlarmModalProps> = ({ id, Modal, defaultValues }) =>
 						</div>
 					</div>
 
-					<div title='Snooze Time' className={getClass(m.container, m.containerDropdown)}>
-						<BellCrossed width={18} height={18} />
-						<div className={m.dropdown} onClick={() => !dropdownActive && setDropdownActive(2)}>
-							{selectedInterval.title}
-							<div
-								className={getClass(m.dropdownOptionWrapper, dropdownActive === 2 && m.dropdownOptionWrapperActive)}
-								style={{ top: -((currentIntervalIndex > 5 ? 5 : currentIntervalIndex) * 37) }}
-							>
-								{intervalOptions.map((interval) => (
-									<span
-										key={interval.id}
-										onClick={() => {
-											setSelectedInterval(interval)
-											setDropdownActive(null)
-										}}
-										className={m.dropdownOption}
-									>
-										{interval.title}
-									</span>
-								))}
+					{false && (
+						<div title='Snooze Time' className={getClass(m.container, m.containerDropdown)}>
+							<BellCrossed width={18} height={18} />
+							<div className={m.dropdown} onClick={() => !dropdownActive && setDropdownActive(2)}>
+								{selectedInterval.title}
+								<div
+									className={getClass(m.dropdownOptionWrapper, dropdownActive === 2 && m.dropdownOptionWrapperActive)}
+									style={{ top: -((currentIntervalIndex > 5 ? 5 : currentIntervalIndex) * 37) }}
+								>
+									{intervalOptions.map((interval) => (
+										<span
+											key={interval.id}
+											onClick={() => {
+												setSelectedInterval(interval)
+												setDropdownActive(null)
+											}}
+											className={m.dropdownOption}
+										>
+											{interval.title}
+										</span>
+									))}
+								</div>
 							</div>
 						</div>
-					</div>
+					)}
 				</Fragment>
 			)
 		}}

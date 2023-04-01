@@ -1,4 +1,5 @@
 import { getClass } from '@/utils'
+import { memo } from 'react'
 
 import t from './toggle.module.scss'
 
@@ -7,13 +8,13 @@ interface IToggleProps {
 	onToggle: VoidFunction
 }
 
-const Toggle: React.FC<IToggleProps> = ({ checked, onToggle }) => {
+const Toggle: React.FC<IToggleProps> = memo(({ checked, onToggle }) => {
 	return (
 		<label className={getClass(t.toggle, 'pointer')}>
 			<input type='checkbox' checked={checked} onChange={onToggle} />
 			<span className={t.toggleSwitch} />
 		</label>
 	)
-}
+})
 
 export default Toggle

@@ -25,3 +25,26 @@ button {
 		display: none;
 	}
 }
+
+.shaking {
+	animation: shake 0.125s infinite;
+	border: 1px solid white;
+}
+
+@keyframes shake {
+	0% {
+		transform: rotate(0deg);
+	}
+	25% {
+		transform: rotate(1deg);
+	}
+	50% {
+		transform: rotate(0eg);
+	}
+	75% {
+		transform: rotate(-1deg);
+	}
+	100% {
+		transform: rotate(0deg);
+	}
+}

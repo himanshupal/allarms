@@ -41,6 +41,14 @@ const App = function () {
 	const changeHash = () => setHash(window.location.hash as Hash)
 
 	useEffect(() => {
+		if (!('Notification' in window)) {
+			// Check if the browser supports notifications
+			alert('Browser does not support desktop notification!')
+		} else if (Notification.permission !== 'granted') {
+			Notification.requestPermission().then((permission) => {
+				console.debug(`Notification permission ${permission}...`)
+			})
+		}
 		window.addEventListener('hashchange', changeHash)
 		return () => window.removeEventListener('hashchange', changeHash)
 	}, [])
