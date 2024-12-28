@@ -15,9 +15,4 @@ export default defineConfig({
 	build: {
 		manifest: true,
 	},
-	css: {
-		preprocessorOptions: {
-			// scss: { additionalData: `@import "${basePath}/styles/variables.scss";\n` },
-		},
-	},
 })
