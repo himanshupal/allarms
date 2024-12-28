@@ -1,17 +1,18 @@
-import { Maximize, Minimize, Pause, Play, Undo, Plus, Edit, Chevron } from '@/components/Icons'
-import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
-import type { ICommonProps, SelectedValue } from '@/types/Common'
-import { MAX_HOURS, MAX_MINUTES, MAX_SECONDS } from '@/config'
-import { getClass, getElapsed, padZero } from '@/utils'
-import type { IModalProps } from '@/hooks/useModal'
-import { useLiveQuery } from 'dexie-react-hooks'
-import { createId } from '@paralleldrive/cuid2'
-import type { ITimer } from '@/types/Timer'
-import useModal from '@/hooks/useModal'
+import { Chevron, Edit, Maximize, Minimize, Pause, Play, Plus, Undo } from '@/assets/icons'
+import { MAX_HOURS, MAX_MINUTES, MAX_SECONDS, SHAKE_ANIM_DURATION } from '@/config'
 import db from '@/database'
+import type { IModalProps } from '@/hooks/useModal'
+import useModal from '@/hooks/useModal'
+import type { ICommonProps, SelectedValue } from '@/types/Common'
+import type { ITimer } from '@/types/Timer'
+import { getClass, getElapsed, padZero } from '@/utils'
+import { createId } from '@paralleldrive/cuid2'
+import { useLiveQuery } from 'dexie-react-hooks'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
+import type { JSX } from 'react/jsx-runtime'
 
 import m from '@/styles/modalContent.module.scss'
-import s from './styles.module.scss'
+import s from './index.module.scss'
 
 export interface ICounterProps extends ITimer, ICommonProps {
 	setMaximizedCounter: React.Dispatch<React.SetStateAction<ITimer['id'] | undefined>>
@@ -29,7 +30,8 @@ const Counter = ({ id, name, duration, maximized, setMaximized, setMaximizedCoun
 	const fraction = useRef<number>(CIRCLE_FRACTIONS)
 	const [elapsed, setElapsed] = useState<number>(duration)
 	const [isActive, setActive] = useState<boolean>(false)
-	const [timer, setTimer] = useState<NodeJS.Timer>()
+	const [timer, setTimer] = useState<NodeJS.Timeout>()
+	const [ended, setEnded] = useState<boolean>(false)
 
 	const { toggleModal, Modal } = useModal()
 	const { hours, minutes, seconds } = useMemo(() => getElapsed(elapsed), [elapsed])
@@ -55,14 +57,21 @@ const Counter = ({ id, name, duration, maximized, setMaximized, setMaximizedCoun
 		setElapsed(duration)
 	}
 
+	useEffect(() => setElapsed(duration), [duration])
+
 	useEffect(() => {
-		setElapsed(duration)
-	}, [duration])
+		if (ended) {
+			const timer = setTimeout(() => setEnded(false), SHAKE_ANIM_DURATION)
+			return () => clearTimeout(timer)
+		}
+	}, [ended])
 
 	useEffect(() => {
 		if (timer && !elapsed) {
+			new Notification(`Time's up - ${name}`)
 			clearInterval(timer)
 			setActive(false)
+			setEnded(true)
 			reset()
 		}
 	}, [timer, elapsed])
@@ -71,7 +80,7 @@ const Counter = ({ id, name, duration, maximized, setMaximized, setMaximizedCoun
 		<Fragment>
 			<TimerModal id={id} Modal={Modal} defaultValues={{ name, hour: +hours, minute: +minutes, second: +seconds }} />
 
-			<div className={s.timerCard}>
+			<div className={getClass(s.timerCard, ended && 'shaking')}>
 				<div className={getClass(s.actions, s.actionsTop)}>
 					{maximized ? <span /> : <span>{name}</span>}
 					<div className={s.timerIcons}>

@@ -1,0 +1,183 @@
+@use "@/styles/variables.scss" as var;
+
+.timer {
+	$parent: &;
+
+	gap: 1rem;
+	display: flex;
+	flex-wrap: wrap;
+
+	&Maximized {
+		width: 100%;
+		height: 100%;
+		align-items: center;
+		justify-content: center;
+
+		#{$parent}Card {
+			background: none;
+
+			&:hover {
+				background: none;
+				transform: unset;
+				box-shadow: unset;
+			}
+		}
+
+		#{$parent}Ring {
+			& > circle {
+				&:last-of-type {
+					fill: #26272a;
+				}
+
+				&:nth-of-type(2) {
+					transition: stroke-dasharray 125ms ease-out;
+					stroke-dasharray: 1256, 1256;
+					stroke-width: 40;
+				}
+			}
+		}
+
+		#{$parent}Digits {
+			font-size: 4.5rem;
+		}
+	}
+
+	&New {
+		transition: all 125ms ease;
+		border: 1px solid #1e1c1c;
+		place-content: center;
+		border-radius: 4px;
+		position: absolute;
+		padding: 0.35rem;
+		display: grid;
+		bottom: 2rem;
+		right: 2rem;
+
+		&:hover {
+			box-shadow: 0 4px 0.5rem #1e1c1c;
+			transform: translateY(-2px);
+		}
+	}
+
+	&Card {
+		@extend .card;
+	}
+
+	&Ring {
+		grid-area: 1/1;
+		transform: rotate(-90deg);
+
+		& > circle {
+			shape-rendering: geometricPrecision;
+
+			&:first-of-type {
+				fill: #373a43;
+			}
+
+			&:nth-of-type(2) {
+				transition: stroke-dasharray 125ms ease-out;
+				stroke-dasharray: 628, 628;
+				stroke-linecap: round;
+				fill: transparent;
+				stroke-width: 20;
+			}
+
+			&:last-of-type {
+				fill: var.$secondary-dark;
+
+				&:hover {
+					fill: var.$secondary-light;
+				}
+			}
+		}
+
+		&Container {
+			transition: all 150ms ease;
+			place-content: center;
+			border-radius: 100%;
+			display: grid;
+		}
+
+		&Active {
+			& > circle {
+				&:nth-of-type(2) {
+					stroke: #4ab4ec;
+				}
+			}
+		}
+	}
+
+	&Digits {
+		place-content: center;
+		font-size: 2rem;
+		grid-area: 1/1;
+		display: grid;
+		opacity: 75%;
+		z-index: 1;
+
+		&Active {
+			opacity: 100%;
+		}
+	}
+
+	&Icon {
+		display: grid;
+		place-content: center;
+
+		&s {
+			gap: 1rem;
+			display: flex;
+			align-items: center;
+		}
+	}
+}
+
+.actions {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.5rem;
+
+	&Top {
+		&:first-of-type {
+			justify-content: space-between;
+		}
+	}
+
+	&Bottom {
+		gap: 0.75rem;
+
+		& > span {
+			display: grid;
+			width: 2.5rem;
+			height: 2.5rem;
+			cursor: pointer;
+			border-radius: 100px;
+			place-content: center;
+			transition: all 125ms ease;
+
+			&:hover {
+				opacity: 85%;
+			}
+
+			&:first-of-type {
+				background: #48b2ea;
+			}
+
+			&:last-of-type {
+				background: #373a43;
+				box-shadow: 0 0 4px #383c47;
+			}
+		}
+
+		&Maximized {
+			gap: 1.5rem;
+			padding: 1rem;
+
+			& > span {
+				width: 3.75rem;
+				height: 3.75rem;
+			}
+		}
+	}
+}

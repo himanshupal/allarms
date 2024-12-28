@@ -1,5 +1,5 @@
 export enum Theme {
-	ONE = 'alpha',
-	TWO = 'beta',
-	THREE = 'gamma',
+	ALPHA = 'alpha',
+	BETA = 'beta',
+	GAMMA = 'gamma',
 }

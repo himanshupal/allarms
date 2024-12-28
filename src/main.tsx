@@ -1,34 +1,24 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Hash, THEME_STORAGE_KEY } from '@/config'
-import Stopwatch from '@/components/Stopwatch'
-import { createRoot } from 'react-dom/client'
-import Layout from '@/components/Layout'
-import Timer from '@/components/Timer'
 import Alarm from '@/components/Alarm'
+import Layout from '@/components/Layout'
+import Stopwatch from '@/components/Stopwatch'
+import Timer from '@/components/Timer'
+import { Hash, THEME_STORAGE_KEY } from '@/config'
 import { Theme } from '@/types/Theme'
+import { useEffect, useMemo, useState } from 'react'
+import { createRoot } from 'react-dom/client'
 
+import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import objectSupport from 'dayjs/plugin/objectSupport'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import utc from 'dayjs/plugin/utc'
-import dayjs from 'dayjs'
 
 import '@/styles/main.scss'
 
 const App = function () {
 	const [hash, setHash] = useState<Hash>((window.location.hash as Hash) || '#/stopwatch')
 	const [maximized, setMaximized] = useState<boolean>(false)
-	const [theme, setTheme] = useState<Theme>(Theme.ONE)
-
-	const name = useMemo(
-		() =>
-			({
-				'#/alarm': 'Alarm',
-				'#/timer': 'Timer',
-				'#/stopwatch': 'Stopwatch',
-			}[hash]),
-		[hash]
-	)
+	const [theme, setTheme] = useState<Theme>(Theme.ALPHA)
 
 	useEffect(() => {
 		const savedTheme = window.localStorage.getItem(THEME_STORAGE_KEY)
@@ -38,12 +28,27 @@ const App = function () {
 		window.localStorage.setItem(THEME_STORAGE_KEY, themeToUse)
 	}, [theme])
 
-	const changeHash = () => setHash(window.location.hash as Hash)
-
 	useEffect(() => {
+		if (!('Notification' in window)) {
+			// Check if the browser supports notifications
+			alert('Browser does not support desktop notification!')
+		} else if (Notification.permission !== 'granted') {
+			Notification.requestPermission().then((permission) => {
+				console.debug(`Notification permission ${permission}...`)
+			})
+		}
+
+		const changeHash = () => setHash(window.location.hash as Hash)
+
 		window.addEventListener('hashchange', changeHash)
 		return () => window.removeEventListener('hashchange', changeHash)
 	}, [])
+
+	const name = {
+		'#/alarm': 'Alarm',
+		'#/timer': 'Timer',
+		'#/stopwatch': 'Stopwatch',
+	}[hash]
 
 	const Component = {
 		'#/alarm': Alarm,

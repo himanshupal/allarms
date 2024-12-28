@@ -1,3 +1,5 @@
+@use "sass:color";
+
 $white: #fff;
 $black: #000;
 
@@ -22,7 +24,7 @@ $secondary-light: #2e323d;
 	transition: all 150ms ease;
 
 	&:hover {
-		box-shadow: 0 4px 0.5rem darken($color: $secondary-dark, $amount: 3.5%);
+		box-shadow: 0 4px 0.5rem color.adjust($secondary-dark, $lightness: -3.5%);
 		background: $secondary-light;
 		transform: translateY(-4px);
 	}

@@ -1,9 +1,11 @@
+@use "variables.scss" as var;
+
 body {
 	@extend .hide-selection;
 
 	margin: unset;
-	color: $white;
-	background: linear-gradient(45deg, $primary-light, $primary-dark);
+	color: var.$white;
+	background: linear-gradient(45deg, var.$primary-light, var.$primary-dark);
 	font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
 		'Helvetica Neue', sans-serif;
 }
@@ -23,5 +25,28 @@ button {
 .hide-selection {
 	::selection {
 		display: none;
+	}
+}
+
+.shaking {
+	animation: shake 0.125s infinite;
+	border: 1px solid white;
+}
+
+@keyframes shake {
+	0% {
+		transform: rotate(0deg);
+	}
+	25% {
+		transform: rotate(1deg);
+	}
+	50% {
+		transform: rotate(0eg);
+	}
+	75% {
+		transform: rotate(-1deg);
+	}
+	100% {
+		transform: rotate(0deg);
 	}
 }

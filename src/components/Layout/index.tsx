@@ -1,8 +1,9 @@
-import type { FC, Dispatch, SetStateAction } from 'react'
-import { getClass } from '@/utils'
 import { Hash } from '@/config'
+import { getClass } from '@/utils'
+import type { Dispatch, FC, SetStateAction } from 'react'
+import type { JSX } from 'react/jsx-runtime'
 
-import s from './styles.module.scss'
+import s from './index.module.scss'
 
 interface ILayoutProps {
 	children: JSX.Element

@@ -1,6 +1,6 @@
 import react from '@vitejs/plugin-react-swc'
-import { defineConfig } from 'vite'
 import { resolve } from 'path'
+import { defineConfig } from 'vite'
 
 const basePath = resolve(__dirname, 'src')
 
@@ -12,12 +12,12 @@ export default defineConfig({
 			'@': basePath,
 		},
 	},
-	build:{
-		manifest:true,
+	build: {
+		manifest: true,
 	},
 	css: {
 		preprocessorOptions: {
-			scss: { additionalData: `@import "${basePath}/styles/variables.scss";\n` },
+			// scss: { additionalData: `@import "${basePath}/styles/variables.scss";\n` },
 		},
 	},
 })

@@ -1,0 +1,147 @@
+.wrapper {
+	gap: 0.4rem;
+	display: flex;
+	min-width: 25rem;
+	justify-self: center;
+	flex-direction: column;
+}
+
+.timer {
+	display: flex;
+	padding: 0.5rem;
+	justify-content: center;
+	align-items: center;
+
+	&Value {
+		display: flex;
+		font-size: 1.5rem;
+		flex-direction: column;
+		align-items: center;
+		margin-top: -1.25rem;
+
+		&>span {
+			opacity: 75%;
+		}
+
+		&>span:first-of-type {
+			display: flex;
+			line-height: 1;
+			font-size: 7.5rem;
+			align-items: center;
+
+			&>span {
+				font-style: inherit;
+				margin-top: -1.25rem;
+			}
+		}
+
+		&>span:last-of-type {
+			font-size: 1.5rem;
+		}
+
+		&:last-of-type {
+			&>span:first-of-type {
+				font-size: 5rem;
+			}
+		}
+
+		&:nth-last-child(2) {
+			&>span:first-of-type {
+				&>span {
+					margin: unset;
+				}
+			}
+		}
+	}
+
+	$parent: &;
+
+	&Active {
+		#{$parent} {
+			&Value {
+				&>span {
+					opacity: 100%;
+				}
+			}
+		}
+	}
+
+	&.maximized {
+		#{$parent} {
+			&Value {
+				&>span:first-of-type {
+					font-size: 10.5rem;
+
+					&>span {
+						font-style: inherit;
+					}
+				}
+
+				&>span:last-of-type {
+					font-size: 3.5rem;
+				}
+
+				&:last-of-type {
+					margin-top: -3.75rem;
+
+					&>span:first-of-type {
+						font-size: 8rem;
+					}
+				}
+			}
+		}
+	}
+}
+
+.icons {
+	display: flex;
+	padding: 0.5rem;
+
+	>span {
+		display: grid;
+		width: 3.5rem;
+		height: 3.5rem;
+		cursor: pointer;
+		border-radius: 100px;
+		place-content: center;
+		transition: all 125ms ease;
+
+		&:hover {
+			opacity: 85%;
+		}
+
+		&:first-child {
+			background: #48b2ea;
+		}
+
+		&:not(:first-child) {
+			box-shadow: 0 0 4px #383c47;
+		}
+	}
+
+	&Top {
+		justify-content: flex-end;
+
+		>span {
+			background: unset !important;
+			height: inherit;
+			width: inherit;
+		}
+	}
+
+	&Bottom {
+		gap: 1.5rem;
+		justify-content: center;
+	}
+}
+
+.lap {
+	display: grid;
+	padding: 0.5rem;
+	grid-template-columns: repeat(3, 1fr);
+
+	&Header {
+		font-weight: 500;
+		border-bottom: 2px solid #383c47;
+	}
+}

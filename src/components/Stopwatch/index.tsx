@@ -1,9 +1,9 @@
-import { Maximize, Minimize, Flag, Pause, Play, Undo } from '@/components/Icons'
-import { Fragment, useMemo, useState } from 'react'
+import { Flag, Maximize, Minimize, Pause, Play, Undo } from '@/assets/icons'
 import type { ICommonProps } from '@/types/Common'
 import { getClass, getElapsed } from '@/utils'
+import { Fragment, useMemo, useState } from 'react'
 
-import s from './styles.module.scss'
+import s from './index.module.scss'
 
 interface ILap {
 	slowest?: boolean
@@ -14,7 +14,7 @@ interface ILap {
 
 const Stopwatch: React.FC<ICommonProps> = ({ maximized, setMaximized }) => {
 	const [isActive, setActive] = useState<boolean>(false)
-	const [timer, setTimer] = useState<NodeJS.Timer>()
+	const [timer, setTimer] = useState<NodeJS.Timeout>()
 	const [laps, setLaps] = useState<Array<ILap>>([])
 	const [elapsed, setElapsed] = useState<number>(0)
 

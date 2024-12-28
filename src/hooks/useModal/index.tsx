@@ -1,18 +1,18 @@
-import { Cancel, Delete, Save } from '@/components/Icons'
-import { memo, useRef, useState } from 'react'
+import { Cancel, Delete, Save } from '@/assets/icons'
 import { getClass } from '@/utils'
+import { memo, useRef, useState } from 'react'
 
-import s from './styles.module.scss'
+import s from './index.module.scss'
 
 interface IModalContent {
-	onSave: React.MutableRefObject<VoidFunction | null>
-	onCancel: React.MutableRefObject<VoidFunction | null>
-	onDelete: React.MutableRefObject<VoidFunction | null>
+	onSave: React.RefObject<VoidFunction | null>
+	onCancel: React.RefObject<VoidFunction | null>
+	onDelete: React.RefObject<VoidFunction | null>
 	toggleModal: VoidFunction
 }
 
 export interface IModalProps {
-	children: React.FC<IModalContent>
+	children(props: IModalContent): React.ReactNode
 	showDeleteIcon?: boolean
 	title: string
 }
