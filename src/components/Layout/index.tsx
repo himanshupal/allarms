@@ -1,48 +1,45 @@
-import { Hash } from '@/config'
+import { Outlet, useLocation } from 'react-router-dom'
+
+import { Page } from '@/config'
 import { getClass } from '@/utils'
-import type { Dispatch, FC, SetStateAction } from 'react'
-import type { JSX } from 'react/jsx-runtime'
 
 import s from './index.module.scss'
 
 interface ILayoutProps {
-	children: JSX.Element
-	setHash: Dispatch<SetStateAction<Hash>>
-	maximized: boolean
-	name: string
-	hash: Hash
+	isLoading?: true
 }
 
-const Layout: FC<ILayoutProps> = ({ children, name, hash, setHash, maximized }) => {
+const Layout = ({ isLoading }: ILayoutProps) => {
+	const { pathname } = useLocation()
+	const maximized = false
+
+	const name = {
+		[Page.Alarm]: 'Alarm',
+		[Page.Timer]: 'Timer',
+		[Page.Stopwatch]: 'Stopwatch',
+	}[pathname]
+
 	return (
 		<div className={s.container}>
 			{!maximized && (
 				<aside className={s.sidebar}>
-					<a
-						className={getClass(s.link, hash === '#/timer' && s.linkActive)}
-						onClick={() => setHash('#/timer')}
-						href='/#/timer'
-					>
+					<a className={getClass(s.link, pathname === Page.Timer && s.linkActive)} href={Page.Timer}>
 						Timer
 					</a>
-					<a
-						className={getClass(s.link, hash === '#/alarm' && s.linkActive)}
-						onClick={() => setHash('#/alarm')}
-						href='/#/alarm'
-					>
+					<a className={getClass(s.link, pathname === Page.Alarm && s.linkActive)} href={Page.Alarm}>
 						Alarm
 					</a>
-					<a
-						className={getClass(s.link, hash === '#/stopwatch' && s.linkActive)}
-						onClick={() => setHash('#/stopwatch')}
-						href='/#/stopwatch'
-					>
+					<a className={getClass(s.link, pathname === Page.Stopwatch && s.linkActive)} href={Page.Stopwatch}>
 						Stopwatch
 					</a>
 				</aside>
 			)}
 
-			<section className={getClass(s.content, s[`content${name}`])}>{children}</section>
+			<section className={getClass(s.content,  s[`content${name}`])}>
+				<Outlet />
+
+				{isLoading ? 'Loading...' : null}
+			</section>
 		</div>
 	)
 }

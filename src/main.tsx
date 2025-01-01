@@ -1,23 +1,23 @@
-import Alarm from '@/components/Alarm'
-import Layout from '@/components/Layout'
-import Stopwatch from '@/components/Stopwatch'
-import Timer from '@/components/Timer'
-import { Hash, THEME_STORAGE_KEY } from '@/config'
-import { Theme } from '@/types/Theme'
-import { useEffect, useMemo, useState } from 'react'
-import { createRoot } from 'react-dom/client'
-
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import objectSupport from 'dayjs/plugin/objectSupport'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import utc from 'dayjs/plugin/utc'
+import { Suspense, lazy, useEffect, useState } from 'react'
+import { createRoot } from 'react-dom/client'
+import { HelmetProvider } from 'react-helmet-async'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 
+import Layout from '@/components/Layout'
+import { THEME_STORAGE_KEY } from '@/config'
 import '@/styles/main.scss'
+import { Theme } from '@/types/Theme'
+
+const Alarm = lazy(() => import('@/pages/Alarm'))
+const Timer = lazy(() => import('@/pages/Timer'))
+const Stopwatch = lazy(() => import('@/pages/Stopwatch'))
 
 const App = function () {
-	const [hash, setHash] = useState<Hash>((window.location.hash as Hash) || '#/stopwatch')
-	const [maximized, setMaximized] = useState<boolean>(false)
 	const [theme, setTheme] = useState<Theme>(Theme.ALPHA)
 
 	useEffect(() => {
@@ -37,31 +37,22 @@ const App = function () {
 				console.debug(`Notification permission ${permission}...`)
 			})
 		}
-
-		const changeHash = () => setHash(window.location.hash as Hash)
-
-		window.addEventListener('hashchange', changeHash)
-		return () => window.removeEventListener('hashchange', changeHash)
 	}, [])
 
-	const name = {
-		'#/alarm': 'Alarm',
-		'#/timer': 'Timer',
-		'#/stopwatch': 'Stopwatch',
-	}[hash]
-
-	const Component = {
-		'#/alarm': Alarm,
-		'#/timer': Timer,
-		'#/stopwatch': Stopwatch,
-	}[hash]
-
-	window.document.title = name
-
 	return (
-		<Layout name={name} hash={hash} maximized={maximized} setHash={setHash}>
-			<Component maximized={maximized} setMaximized={setMaximized} />
-		</Layout>
+		<BrowserRouter>
+			<HelmetProvider>
+				<Suspense fallback={<Layout isLoading />}>
+					<Routes>
+						<Route path='/' Component={Layout}>
+							<Route path='/alarm' Component={Alarm} />
+							<Route path='/timer' Component={Timer} />
+							<Route path='/stopwatch' Component={Stopwatch} />
+						</Route>
+					</Routes>
+				</Suspense>
+			</HelmetProvider>
+		</BrowserRouter>
 	)
 }
 

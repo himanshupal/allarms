@@ -1,5 +1,6 @@
-import { getClass } from '@/utils'
 import { memo } from 'react'
+
+import { getClass } from '@/utils'
 
 import t from './index.module.scss'
 

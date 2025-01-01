@@ -1,6 +1,7 @@
+import { memo, useRef, useState } from 'react'
+
 import { Cancel, Delete, Save } from '@/assets/icons'
 import { getClass } from '@/utils'
-import { memo, useRef, useState } from 'react'
 
 import s from './index.module.scss'
 

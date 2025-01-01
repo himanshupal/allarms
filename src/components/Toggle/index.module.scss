@@ -1,4 +1,4 @@
-@use "@/styles/variables.scss" as var;
+@use '@/styles/variables.scss' as var;
 
 .toggle {
 	$parent: &;
@@ -37,7 +37,7 @@
 			box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
 		}
 
-		input[type='checkbox']:checked+& {
+		input[type='checkbox']:checked + & {
 			background: var.$highlight;
 			border: none;
 

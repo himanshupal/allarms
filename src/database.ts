@@ -1,7 +1,8 @@
-import type { ITimer } from '@/types/Timer'
-import type { IAlarm } from '@/types/Alarm'
 import type { Table } from 'dexie'
 import Dexie from 'dexie'
+
+import type { IAlarm } from '@/types/Alarm'
+import type { ITimer } from '@/types/Timer'
 
 class Database extends Dexie {
 	public timers!: Table<ITimer, string>
