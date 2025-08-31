@@ -290,6 +290,7 @@ __metadata:
     react-dom: "npm:^19.0.0"
     react-helmet-async: "npm:^2.0.5"
     react-router-dom: "npm:^7.1.1"
+    register-service-worker: "npm:^1.7.2"
     sass: "npm:^1.83.0"
     typescript: "npm:^5.7.2"
     vite: "npm:^6.0.6"
@@ -1955,6 +1956,13 @@ __metadata:
   version: 4.0.2
   resolution: "readdirp@npm:4.0.2"
   checksum: 10/4ef93103307c7d5e42e78ecf201db58c984c4d66882a27c956250478b49c2444b1ff6aea8ce0f5e4157b2c07ce2fe870ad16c92ebd7c6ff30391ded6e42b9873
+  languageName: node
+  linkType: hard
+
+"register-service-worker@npm:^1.7.2":
+  version: 1.7.2
+  resolution: "register-service-worker@npm:1.7.2"
+  checksum: 10/d32f33e1f7a907806abb64f22e63d31749e1ef14326adff1c9159cc3121b296d58c793e74212ca5d0aefa28a0ae89d5c2200288c9153786e8f8d61b662e48627
   languageName: node
   linkType: hard
 

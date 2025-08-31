@@ -7,6 +7,7 @@ import { Suspense, lazy, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { register } from 'register-service-worker'
 
 import Layout from '@/components/Layout'
 import { THEME_STORAGE_KEY } from '@/config'
@@ -60,6 +61,30 @@ dayjs.extend(customParseFormat)
 dayjs.extend(objectSupport)
 dayjs.extend(relativeTime)
 dayjs.extend(utc)
+
+register('/sw.js', {
+	ready(registration) {
+		console.log('Service worker is active.')
+	},
+	registered(registration) {
+		console.log('Service worker has been registered.')
+	},
+	cached(registration) {
+		console.log('Content has been cached for offline use.')
+	},
+	updatefound(registration) {
+		console.log('New content is downloading.')
+	},
+	updated(registration) {
+		console.log('New content is available; please refresh.')
+	},
+	offline() {
+		console.log('No internet connection found. App is running in offline mode.')
+	},
+	error(error) {
+		console.error('Error during service worker registration:', error)
+	},
+})
 
 const rootEl = document.getElementById('app')!
 createRoot(rootEl).render(<App />)

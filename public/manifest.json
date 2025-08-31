@@ -1,0 +1,16 @@
+{
+	"name": "Alarm and Clock",
+	"description": "Windows Alarm and Clock application web port",
+	"start_url": "/",
+	"lang": "en-GB",
+	"theme_color": "#26272a",
+	"display": "standalone",
+	"orientation": "portrait",
+	"icons": [
+		{
+			"src": "/clock.svg",
+			"sizes": "150x150",
+			"type": "image/svg+xml"
+		}
+	]
+}
